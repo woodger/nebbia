@@ -1,0 +1,60 @@
+{
+  "_from": "nebbia@0.0.1",
+  "_id": "nebbia@0.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-cJPeJPAZnzDBK1ngIRjnHhy4LXdQjjpm6ZphDKLcv90oiICrLbye8WVPAQR8SbXaiIjE2UNO+vN82Miw46agEA==",
+  "_location": "/nebbia",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "nebbia@0.0.1",
+    "name": "nebbia",
+    "escapedName": "nebbia",
+    "rawSpec": "0.0.1",
+    "saveSpec": null,
+    "fetchSpec": "0.0.1"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/nebbia/-/nebbia-0.0.1.tgz",
+  "_shasum": "bb97176aeaa97809e0dc372accba0e751c4992ff",
+  "_spec": "nebbia@0.0.1",
+  "_where": "/home/stanislav/my-project/npm-nebbia",
+  "author": {
+    "name": "Stanislav Woodger",
+    "email": "woodger@ya.ru"
+  },
+  "bugs": {
+    "url": "https://github.com/woodger/nebbia/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "JavaScript Template literals (Template strings) compiler",
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=8.12.0"
+  },
+  "homepage": "https://github.com/woodger/nebbia#readme",
+  "keywords": [
+    "strings",
+    "template engine",
+    "compiler"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "nebbia",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woodger/nebbia.git"
+  },
+  "scripts": {
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha",
+    "test": "mocha"
+  },
+  "version": "0.0.1"
+}
