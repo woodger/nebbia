@@ -1,27 +1,27 @@
 {
-  "_from": "nebbia@0.0.1",
-  "_id": "nebbia@0.0.1",
+  "_from": "nebbia@0.0.2",
+  "_id": "nebbia@0.0.2",
   "_inBundle": false,
-  "_integrity": "sha512-cJPeJPAZnzDBK1ngIRjnHhy4LXdQjjpm6ZphDKLcv90oiICrLbye8WVPAQR8SbXaiIjE2UNO+vN82Miw46agEA==",
+  "_integrity": "sha512-HoT6fvZs+TqPv7R1St2iR7O8RURUPjqHoY4mEstJsFM3bl/vMDUPu0fZM3TjxklUGGos2tBn9C37xNmokjhLOQ==",
   "_location": "/nebbia",
   "_phantomChildren": {},
   "_requested": {
     "type": "version",
     "registry": true,
-    "raw": "nebbia@0.0.1",
+    "raw": "nebbia@0.0.2",
     "name": "nebbia",
     "escapedName": "nebbia",
-    "rawSpec": "0.0.1",
+    "rawSpec": "0.0.2",
     "saveSpec": null,
-    "fetchSpec": "0.0.1"
+    "fetchSpec": "0.0.2"
   },
   "_requiredBy": [
     "#USER",
     "/"
   ],
-  "_resolved": "https://registry.npmjs.org/nebbia/-/nebbia-0.0.1.tgz",
-  "_shasum": "bb97176aeaa97809e0dc372accba0e751c4992ff",
-  "_spec": "nebbia@0.0.1",
+  "_resolved": "https://registry.npmjs.org/nebbia/-/nebbia-0.0.2.tgz",
+  "_shasum": "9b0694a8913bcbc662fdd16ae7cbc694150d60a5",
+  "_spec": "nebbia@0.0.2",
   "_where": "/home/stanislav/my-project/npm-nebbia",
   "author": {
     "name": "Stanislav Woodger",
@@ -56,5 +56,5 @@
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha",
     "test": "mocha"
   },
-  "version": "0.0.1"
+  "version": "0.0.2"
 }

@@ -18,8 +18,9 @@ Template literals are enclosed by the back-tick ``` (grave accent) character ins
 This is a very useful feature. The expression can only be used to interpolate strings. The following example demonstrates the problem of string interpolation.
 
 ```js
-`some text ... ${1 + 1}`; // some text ... 2
-`some text ... ${if (true) {}}`; // throw SyntaxError: Unexpected token if
+`${1 + 1}` // '2'
+`${}` // SyntaxError: Unexpected token }
+`${if (true) {}}` // SyntaxError: Unexpected token if
 ```
 
 `Nebbia` was created to help solve this problem. The compiler extends the capabilities of [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) with the capabilities of standard `JavaScript` [statements and declarations](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements).
@@ -67,10 +68,11 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 - [class Statement](#class-statement)
 - [class Text](#class-text)
 - [nebbia.parse(template)](#nebbiaparsetemplate)
+- [nebbia.unity](#nebbiaunity)
 
 #### nebbia(template)
 
-- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. A `__string__` is a reserved keyword.
+- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. By default, `'__string__'` is the name of a variable used to concatenate strings. You can change a keyword by assigning a value to the `nebbia.unity` property.
 - returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick ``` (grave accent).
 
 **template.html**
@@ -92,7 +94,6 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 ```txt
 ${if (user === 'admin') {
   📆 To-do list
-
   for (let i of list) {
     - ${i.date} ${i.note}
   }
@@ -250,7 +251,7 @@ Contains the `name` of the statement, the condition is stored in the `value` of 
 
 #### nebbia.parse(template)
 
-- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. A `__string__` is a reserved keyword.
+- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. By default, `'__string__'` is the name of a variable used to concatenate strings. You can change a keyword by assigning a value to the `nebbia.unity` property.
 - returns: <[Expression](#class-expression)> Each branch of the tree ends in a `node`, and each `node` contains objects. Methods provides programmatic access to the tree; with them you can change the template strings structure.
 
 An example of parsing the template:
@@ -295,6 +296,10 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 ```
 
 > NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.thml*
+
+#### nebbia.unity
+
+<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`
 
 ## Development
 

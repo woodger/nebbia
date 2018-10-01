@@ -11,8 +11,6 @@ const re = {
   if: /^\s*\if\s*\(/
 };
 
-const keyword = '__string__';
-
 class Node {
   constructor() {
     this.type = null;
@@ -103,20 +101,20 @@ class Statement extends Node {
           other += i.build();
         }
 
-        value += '`;else ' + keyword + '+=`' + other;
+        value += '`;else ' + compile.unity + '+=`' + other;
       }
     }
 
-    return '${((' + keyword + ')=>{' + this.name + '(' + this.value + ')' +
-    keyword + '+=`' + value + '`;return ' + keyword + '})(``)}';
+    return '${((' + compile.unity + ')=>{' + this.name + '(' + this.value + ')' +
+    compile.unity + '+=`' + value + '`;return ' + compile.unity + '})(``)}';
   }
 }
 
 
 
 const parseExpression = (template, parent) => {
-  if (template.indexOf(keyword) > -1) {
-    throw new Error(`${keyword} is reserved keyword`);
+  if (template.indexOf(compile.unity) > -1) {
+    throw new Error(`${compile.unity} is reserved unity`);
   }
 
   let node = new Expression();
@@ -355,15 +353,18 @@ const parse = (template) => {
   return node;
 };
 
-module.exports = (template) => {
- let tree = parse(template);
- let string = tree.build();
+const compile = (template) => {
+  let tree = parse(template);
+  let string = tree.build();
 
- return string;
+  return string;
 };
 
-module.exports.Node = Node;
-module.exports.Text = Text;
-module.exports.Expression = Expression;
-module.exports.Statement = Statement;
-module.exports.parse = parse;
+module.exports = Object.assign(compile, {
+  Node,
+  Expression,
+  Statement,
+  Text,
+  unity: '__string__',
+  parse
+});
