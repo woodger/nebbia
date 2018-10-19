@@ -1,11 +1,9 @@
 # Nebbia
 
-<!-- [START badges] -->
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/nebbia/blob/master/LICENSE)
 [![Build Status](https://travis-ci.com/woodger/nebbia.svg?branch=master)](https://travis-ci.com/woodger/nebbia)
 [![Coverage Status](https://coveralls.io/repos/github/woodger/nebbia/badge.svg?branch=master)](https://coveralls.io/github/woodger/nebbia?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/woodger/nebbia/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/nebbia?targetFile=package.json)
-<!-- [END badges] -->
 
 `Nebbia` is a JavaScript [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) compiler. Make the templates more expressive.
 
@@ -13,7 +11,7 @@
 
 <img src="http://yuml.me/diagram/scruffy;dir:LR/class/[Template{bg:snow}]->parse[Syntax Tree],[Syntax Tree]->compile[Template String{bg:yellowgreen}],[Template String]-.->[new Function(){bg:yellow}]">
 
-Template literals are enclosed by the back-tick ``` (grave accent) character instead of double or single quotes. Template literals can contain placeholders. These are indicated by the dollar sign and curly braces `${expression}`. The expressions in the placeholders and the text between them get passed to a function. The default function just concatenates the parts into a single string.
+Template literals are enclosed by the back-tick `` ` `` character instead of double or single quotes. Template literals can contain placeholders. These are indicated by the dollar sign and curly braces `` `${expression}` ``. The expressions in the placeholders and the text between them get passed to a function. The default function just concatenates the parts into a single string.
 
 This is a very useful feature. The expression can only be used to interpolate strings. The following example demonstrates the problem of string interpolation.
 
@@ -37,6 +35,7 @@ List of supported statements:
 > NOTE The `break` statement is a prisoner in blocks `for`, `for..in`, `for ...of`, `while` does not support interrupt inside iterations.
 
 `Nebbia` created by to make template strings more loyal. An empty expression `${}` will not `throw` an exception. Supports *closures* and multiple *nesting* of expressions.
+The compiled pattern does not use regular expressions.
 
 ## Getting Started
 
@@ -73,7 +72,7 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 #### nebbia(template)
 
 - `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. By default, `'__string__'` is the name of a variable used to concatenate strings. You can change a keyword by assigning a value to the `nebbia.unity` property.
-- returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick ``` (grave accent).
+- returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick `` ` `` (grave accent).
 
 **template.html**
 
@@ -83,9 +82,18 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
   <head>
     <title>Nebbia</title>
   </head>
-  <body>${for (let i of body) {
-    <div>${i}</div>
-  }}</body>
+  <body>
+    <h1>${h1}</h1>
+    ${if (list instanceof Array) {
+      <header></header>
+      ${for (let i of list) {
+        <div>${i}</div>
+      }}
+    }
+    if (footer) {
+      <footer></footer>
+    }}
+  </body>
 </html>
 ```
 
@@ -102,6 +110,16 @@ else {
   Offer a cup of coffee!
 }}
 ```
+
+Strings are enclosed by the back-tick `` ` `` character is processed by the parser as is.
+
+```html
+${if (arg === `;)`) {
+  <p>Maybe it's a smile</p>
+}}
+```
+
+This is useful when you need to escape arguments in a statement. Otherwise, the parser will read the statement like `arg === ;`.
 
 #### Statements by category
 
@@ -203,7 +221,7 @@ Adds the specified `node` argument as the last child to the current node.
 
 #### node.build()
 
-- returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick ``` (grave accent).
+- returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick `` ` `` (grave accent).
 
 #### node.childs
 
@@ -242,8 +260,7 @@ Represents a group of nodes resulting from parsing an expression on [Statement](
 
 #### class Text
 
-Represents the textual content of `${expression}`.
-
+Represents the textual content.
 
 #### class Statement
 
@@ -299,7 +316,7 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 
 #### nebbia.unity
 
-<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`
+<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`.
 
 ## Development
 
