@@ -55,6 +55,7 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 
 [nebbia(template)](#nebbiatemplate)
 - [class Node](#class-node)
+  - [static: Node.unity](#static-nodeunity)
   - [constructor: new Node()](#constructor-new-node)
   - [node.append(child)](#nodeappendchild)
   - [node.build()](#nodebuild)
@@ -67,7 +68,6 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 - [class Statement](#class-statement)
 - [class Text](#class-text)
 - [nebbia.parse(template)](#nebbiaparsetemplate)
-- [nebbia.unity](#nebbiaunity)
 
 #### nebbia(template)
 
@@ -208,6 +208,10 @@ example([0, 1]); // <p>1</p><p>0/p>
 
 The following interfaces all inherit from `Node`’s methods and properties: [Expression](#class-expression), [Statement](#class-statement), [Text](#class-text).
 
+#### static: Node.unity
+
+<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`.
+
 #### constructor: new Node()
 
 Sets default node instance values.
@@ -313,10 +317,6 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 ```
 
 > NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.thml*
-
-#### nebbia.unity
-
-<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`.
 
 ## Development
 
