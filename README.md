@@ -131,7 +131,7 @@ The `Nebbia` uses JavaScript with an appropriate syntax to create a compilation 
 const nebbia = require('nebbia');
 
 const template = '${if (arg === true) {<p>${arg}</p>}}';
-const example = new Function('arg', 'return ' + example(template));
+const example = new Function('arg', 'return ' + nebbia(template));
 
 example(true); // <p>true</p>
 ```
@@ -290,15 +290,17 @@ ${if (typeof value === 'string') {
 **index.js**
 
 ```js
-const FileSystem = require('pwd-fs');
 const nebbia = require('nebbia');
+const Pwdfs = require('pwd-fs');
 
-const pfs = new FileSystem();
+const pwdfs = new Pwdfs();
 
-pfs.read('./template.html').then((content) => {
-  let tree = nebbia.parse(content);
-  let template = tree.build();
-});
+async () => {
+  const content = await pwdfs.read('./template.html');
+
+  const tree = nebbia.parse(content);
+  const template = tree.build();
+};
 ```
 
 *tree:*
@@ -316,7 +318,7 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 `
 ```
 
-> NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.thml*
+> NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.html*
 
 ## Development
 
