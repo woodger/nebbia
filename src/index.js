@@ -5,116 +5,20 @@
  * https://www.ecma-international.org/ecma-262/9.0/index.html
  */
 
+const Node = require('./node');
+const Expression = require('./expression');
+const Text = require('./text');
+const Statement = require('./statement');
+
 const re = {
   bracket: /^\s*\(/,
   brace: /^\s*\{/,
   if: /^\s*\if\s*\(/
 };
 
-class Node {
-  constructor() {
-    this.type = null;
-    this.name = null;
-    this.parent = null;
-    this.childs = [];
-    this.value = '';
-  }
-
-  append(child) {
-    child.parent = this;
-    this.childs.push(child);
-  }
-
-  build() {
-    return this.value;
-  }
-}
-
-class Expression extends Node {
-  constructor() {
-    super();
-
-    this.type = 0;
-    this.name = '#expression';
-  }
-
-  build() {
-    if (this.value !== '') {
-      return '${' + this.value + '}';
-    }
-
-    let value = '';
-
-    for (let i of this.childs) {
-      value += i.build();
-    }
-
-    return '`' + value + '`';
-  }
-}
-
-class Text extends Node {
-  constructor() {
-    super();
-
-    this.type = 1;
-    this.name = '#text';
-  }
-}
-
-class Statement extends Node {
-  constructor() {
-    super();
-
-    this.type = 2;
-    this.name = '';
-  }
-
-  build() {
-    let value = '';
-    let other = '';
-
-    if (this.name === 'else') {
-      return '';
-    }
-
-    for (let i of this.childs) {
-      value += i.build();
-    }
-
-    if (this.name === 'if') {
-      let index = -1;
-
-      for (let i = this.parent.childs.length - 1; i >= 0; i--) {
-        if (this.parent.childs[i] === this) {
-          index = i;
-          break;
-        }
-      }
-
-      let next = this.parent.childs[index + 1];
-
-      if (next !== undefined && next.name === 'else') {
-        let other = '';
-
-        for (let i of next.childs) {
-          other += i.build();
-        }
-
-        value += '`;else ' + compile.unity + '+=`' + other;
-      }
-    }
-
-    return '${((' + compile.unity + ')=>{' + this.name + '(' + this.value + ')' +
-    compile.unity + '+=`' + value + '`;return ' + compile.unity + '})(``)}';
-  }
-}
-
-
-
 const parseExpression = (template, parent) => {
-  if (template.indexOf(compile.unity) > -1) {
-    throw new Error(`${compile.unity} is reserved unity`);
+  if (template.indexOf(Node.unity) > -1) {
+    throw new Error(`${Node.unity} is reserved keyword`);
   }
 
   let node = new Expression();
@@ -151,7 +55,6 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 2;
         char = '';
-
         i += 2;
       }
       else if (
@@ -164,7 +67,6 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 1;
         char = '';
-
         i += 4;
       }
       else if (
@@ -184,13 +86,11 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 2;
         char = '';
-
         i += 3;
       }
       else if (
         char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
-        template[i + 4] === 'e' && // <-- Замерить
-        re.bracket.test(template.substr(i + 5))
+        template[i + 4] === 'e' && re.bracket.test(template.substr(i + 5))
       ) {
         buffer = buffer.trim();
 
@@ -205,7 +105,6 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 2;
         char = '';
-
         i += 5;
       }
       else {
@@ -230,7 +129,6 @@ const parseExpression = (template, parent) => {
 
           node.value = buffer;
           buffer = '';
-
           mode = mode >> 1;
         }
       }
@@ -260,7 +158,6 @@ const parseExpression = (template, parent) => {
 
           node = new Expression();
           buffer = '';
-
           mode = mode >> 1;
         }
       }
@@ -270,7 +167,7 @@ const parseExpression = (template, parent) => {
       }
     }
     else {
-      buffer += char; // <-- Коллекционер ковычек
+      buffer += char;
     }
   }
 
@@ -282,7 +179,7 @@ const parseExpression = (template, parent) => {
   }
 };
 
-const parseTemplate = (template, parent = new Expression()) => {
+const parseTemplate = (template, parent) => {
   let node = new Text();
   let brace = 0;
   let quote = 0;
@@ -347,24 +244,25 @@ const parse = (template) => {
     throw new TypeError('The method argument must be of string type');
   };
 
-  let node = new Expression();
+  const node = new Expression();
   parseTemplate(template, node);
 
   return node;
 };
 
-const compile = (template) => {
-  let tree = parse(template);
-  let string = tree.build();
+const nebbia = (template) => {
+  const tree = parse(template);
+  const func = tree.build();
 
-  return string;
+  return func;
 };
 
-module.exports = Object.assign(compile, {
+Object.assign(nebbia, {
   Node,
   Expression,
   Statement,
   Text,
-  unity: '__string__',
   parse
 });
+
+module.exports = nebbia;

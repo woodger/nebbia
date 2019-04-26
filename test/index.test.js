@@ -1,398 +1,343 @@
 const assert = require('assert');
-const nebbia = require('..');
+const nebbia = require('../src');
 
-
-
-describe(`Interaface`, () => {
-  it(`The module must provide a function type`, () => {
+describe('Interaface', () => {
+  it('The module must provide a function type', () => {
     assert.strictEqual(typeof nebbia, 'function');
   });
 
-  it(`The module must contain a '#parse()' function`, () => {
-    assert.strictEqual(typeof nebbia.parse, 'function');
+  it('The module must contain a "#parse()" function', () => {
+    assert(typeof nebbia.parse === 'function');
   });
 
-  it(`The module must contain 'class Node' for building a syntax tree`, () => {
-    assert.strictEqual(typeof nebbia.Node, 'function');
+  it('The module must contain "class Node" for building a syntax tree', () => {
+    assert(typeof nebbia.Node === 'function');
   });
 
-  it(`'Expression', 'Text' and 'Statement' must extentds 'class Node'`, () => {
+  it('"Expression", "Text" and "Statement" must extentds "class Node"', () => {
     assert(nebbia.Node.isPrototypeOf(nebbia.Expression));
     assert(nebbia.Node.isPrototypeOf(nebbia.Text));
     assert(nebbia.Node.isPrototypeOf(nebbia.Statement));
   });
 
-  it(`Interaface 'constructor: new Node'`, () => {
-    let node = new nebbia.Node();
+  it('Interaface "constructor: new Node"', () => {
+    const node = new nebbia.Node();
 
-    assert.strictEqual(node.type, null);
-    assert.strictEqual(node.name, null);
-    assert.strictEqual(node.parent, null);
-    assert.strictEqual(node.value, '');
+    assert(node.type === null);
+    assert(node.name === null);
+    assert(node.parent === null);
+    assert(node.value === '');
     assert(node.childs instanceof Array);
   });
 
-  it(`Interaface 'constructor: new Expression'`, () => {
-    let node = new nebbia.Expression();
+  it('Interaface "constructor: new Expression"', () => {
+    const node = new nebbia.Expression();
 
-    assert.strictEqual(node.type, 0);
-    assert.strictEqual(node.name, '#expression');
+    assert(node.type === 0);
+    assert(node.name === '#expression');
   });
 
-  it(`Interaface 'constructor: new Text'`, () => {
-    let node = new nebbia.Text();
+  it('Interaface "constructor: new Text"', () => {
+    const node = new nebbia.Text();
 
-    assert.strictEqual(node.type, 1);
-    assert.strictEqual(node.name, '#text');
+    assert(node.type === 1);
+    assert(node.name === '#text');
   });
 
-  it(`Interaface 'constructor: new Statement'`, () => {
-    let node = new nebbia.Statement();
-
-    assert.strictEqual(node.type, 2);
+  it('Interaface "constructor: new Statement"', () => {
+    const node = new nebbia.Statement();
+    assert(node.type === 2);
   });
 });
 
+describe('#nebbia()', () => {
+  describe('JavaScript statements', () => {
+    it('The method should perform an operator translation of "if"', () => {
+      const template = '${if (arg) {<i>${arg}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const def = invoke();
+      const res = invoke(1);
 
-
-describe(`#nebbia()`, () => {
-  describe(`JavaScript statements`, () => {
-    it(`The method should perform an operator translation of 'if'`, () => {
-      let template =
-      '${if (arg) {<i>${arg}</i>}}';
-
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(invoke(), '');
-      assert.strictEqual(
-        invoke(1),
-        '<i>1</i>'
-      );
+      assert(def === '');
+      assert(res === '<i>1</i>');
     });
 
-    it(`The method should perform an operator translation of 'if...else'`, () => {
-      let template =
-      '${if (arg) {<i>${arg}</i>} else {<i>default</i>}}';
+    it(
+      'The method should perform an operator translation of "if...else"',
+    () => {
+      const template = '${if (arg) {<i>${arg}</i>} else {<i>default</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke(1);
+      const def = invoke();
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke(1),
-        '<i>1</i>'
-      );
-      assert.strictEqual(
-        invoke(),
-        '<i>default</i>'
-      );
+      assert(res === '<i>1</i>');
+      assert(def === '<i>default</i>');
     });
 
-    it(`The method should perform an operator translation of 'for'`, () => {
-      let template =
-      '${for (let i = 0; i < arg; i++) {<i>${i}</i>}}';
+    it('The method should perform an operator translation of "for"', () => {
+      const template = '${for (let i = 0; i < arg; i++) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke(2);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke(2),
-        '<i>0</i><i>1</i>'
-      );
+      assert(res === '<i>0</i><i>1</i>');
     });
 
-    it(`The method should perform an operator translation of 'for..in'`, () => {
-      let template =
-      '${for (let i in arg) {<i>${i}</i>}}';
+    it('The method should perform an operator translation of "for..in"', () => {
+      const template = '${for (let i in arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke({
+        foo: 1,
+        bar: 2
+      });
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke({foo: 1, bar: 2}),
-        '<i>foo</i><i>bar</i>'
-      );
+      assert(res === '<i>foo</i><i>bar</i>');
     });
 
-    it(`The method should perform an operator translation of 'for..of'`, () => {
-      let template =
-      '${for (let i of arg) {<i>${i}</i>}}';
+    it('The method should perform an operator translation of "for..of"', () => {
+      const template = '${for (let i of arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke([0, 1]);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke([0, 1]),
-        '<i>0</i><i>1</i>'
-      );
+      assert(res === '<i>0</i><i>1</i>');
     });
 
-    it(`The method should perform an operator translation of 'while'`, () => {
-      let template =
-      '${while (arg-- > 0) {<i>${arg}</i>}}';
+    it('The method should perform an operator translation of "while"', () => {
+      const template = '${while (arg-- > 0) {<i>${arg}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke(2);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke(2),
-        '<i>1</i><i>0</i>'
-      );
+      assert(res === '<i>1</i><i>0</i>');
     });
   });
 
-  describe(`JavaScript syntax test group`, () => {
-    it(`The first argument to the method is a string type`, () => {
-      assert.throws(() => {
+  describe('JavaScript syntax test group', () => {
+    it('The first argument to the method is a string type', () => {
+      try {
         nebbia();
-      });
+      }
+      catch (err) {
+        assert(err.message === 'The method argument must be of string type');
+      }
     });
 
-    it(`The parser must handle expressions`, () => {
-      let template =
-      '${if (arg.toString()) {<i>${arg}</i>}}';
+    it('The parser must handle expressions', () => {
+      const template = '${if (arg.toString()) {<i>${arg}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke(1);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke(1),
-        '<i>1</i>'
-      );
+      assert(res === '<i>1</i>');
     });
 
-    it(`The parser must handle Array destructuring`, () => {
-      let template =
-      '${for (let [i] of arg) {<i>${i}</i>}}';
+    it('The parser must handle Array destructuring', () => {
+      const template = '${for (let [i] of arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke([
+        [0], [1]
+      ]);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke([
-          [0],
-          [1]
-        ]),
-        '<i>0</i><i>1</i>'
-      );
+      assert(res === '<i>0</i><i>1</i>');
     });
 
-    it(`The parser must handle Object destructuring`, () => {
-      let template =
-      '${for (let {i} of arg) {<i>${i}</i>}}';
+    it('The parser must handle Object destructuring', () => {
+      const template = '${for (let {i} of arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke([
+        {i: 0},
+        {i: 1}
+      ]);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke([
-          {i: 0},
-          {i: 1}
-        ]),
-        '<i>0</i><i>1</i>'
-      );
+      assert(res === '<i>0</i><i>1</i>');
     });
 
-    it(`The parser must handle destructuring assignment Object`, () => {
-      let template =
-      '${for (let {i = 0} of arg) {<i>${i}</i>}}';
+    it('The parser must handle destructuring assignment Object', () => {
+      const template = '${for (let {i = 0} of arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke([
+        {m: 0},
+        {i: 1}
+      ]);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke([
-          {m: 0},
-          {i: 1}
-        ]),
-        '<i>0</i><i>1</i>'
-      );
+      assert(res === '<i>0</i><i>1</i>');
     });
 
-    it(`Throw an exception if the condition is empty`, () => {
-      assert.throws(() => {
+    it('Throw an exception if the condition is empty', () => {
+      try {
         nebbia('${for () {<i></i>}}');
-      });
+      }
+      catch (err) {
+        assert(err.message === 'Unexpected token )');
+      }
     });
 
-    it(`Throw an exception if the expression does follow the statement`, () => {
-      assert.throws(() => {
+    it('Throw an exception if the expression does follow the statement', () => {
+      try {
         nebbia('${for (true) {}}');
-      });
+      }
+      catch (err) {
+        assert(
+          err.message === 'Template literal must start with a template head'
+        );
+      }
     });
   });
 
-  describe(`Nested expressions`, () => {
+  describe('Nested expressions', () => {
     it(`The statements 'for' is in a statements 'if'`, () => {
-      let template =
-      '${if (arg) {<p>${for (let i of arg) {<i>${i}</i>}}</p>}}';
+      const template =
+        '${if (arg) {<p>${for (let i of arg) {<i>${i}</i>}}</p>}}';
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke([0, 1]);
 
-      assert.strictEqual(
-        invoke([0, 1]),
-        '<p><i>0</i><i>1</i></p>'
-      );
+      assert(res === '<p><i>0</i><i>1</i></p>');
     });
 
-    it(`The statements 'if' is in a statements 'while'`, () => {
-      let template =
-      '${while (arg.pop() > -1) {<p>${if (arg.length > 0) {<i>${arg.length}</i>}}</p>}}';
+    it('The statements "if" is in a statements "while"', () => {
+      const template =
+        '${while (arg.pop() > -1) {<p>${if (arg.length > 0) ' +
+        '{<i>${arg.length}</i>}}</p>}}';
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke([0, 1]);
 
-      assert.strictEqual(
-        invoke([0, 1]),
-        '<p><i>1</i></p><p></p>'
-      );
+      assert(res === '<p><i>1</i></p><p></p>');
     });
   });
 
-  describe(`Multiple statements`, () => {
-    it(`The operator translation of 'if' with other expression`, () => {
-      let template =
-      '${if (arg === true) {<i>1</i>} hello}';
+  describe('Multiple statements', () => {
+    it('The operator translation of "if" with other expression"', () => {
+      const template = '${if (arg === true) {<i>1</i>} hello}';
+      const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
+      const res = invoke(true, 'Hello, World!');
 
-      let invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke(true, 'Hello, World!'),
-        '<i>1</i>Hello, World!'
-      );
+      assert(res === '<i>1</i>Hello, World!');
     });
 
-    it(`The operator translation of 'if...else' with other expression`, () => {
-      let template =
-      '${hello if (arg === true) {<i>1</i>} else {<i>0</i>}}';
+    it('The operator translation of "if...else" with other expression', () => {
+      const template = '${hello if (arg === true) {<i>1</i>} else {<i>0</i>}}';
+      const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
+      const res = invoke(false, 'Hello, World!');
 
-      let invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke(false, 'Hello, World!'),
-        'Hello, World!<i>0</i>'
-      );
+      assert(res === 'Hello, World!<i>0</i>');
     });
 
-    it(`The operator translation of 'for' with other expression`, () => {
-      let template =
-      '${hello for (let i = 0; i < 1; i++) {<i>${i}</i>}}';
+    it('The operator translation of "for" with other expression', () => {
+      const template = '${hello for (let i = 0; i < 1; i++) {<i>${i}</i>}}';
+      const invoke = new Function('hello', 'return ' + nebbia(template));
+      const res = invoke('Hello, World!');
 
-      let invoke = new Function('hello', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke('Hello, World!'),
-        'Hello, World!<i>0</i>'
-      );
+      assert(res === 'Hello, World!<i>0</i>');
     });
 
-    it(`The operator translation of 'for...in' with other expression`, () => {
-      let template =
-      '${hello for (let i in arg) {<i>${i}</i>}}';
+    it('The operator translation of "for...in" with other expression', () => {
+      const template = '${hello for (let i in arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
+      const res = invoke({foo: 1, bar: 2}, 'Hello, World!');
 
-      let invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke({foo: 1, bar: 2}, 'Hello, World!'),
-        'Hello, World!<i>foo</i><i>bar</i>'
-      );
+      assert.strictEqual(res, 'Hello, World!<i>foo</i><i>bar</i>');
     });
 
-    it(`The operator translation of 'for...of' with other expression`, () => {
-      let template =
-      '${hello for (let i of arg) {<i>${i}</i>}}';
+    it('The operator translation of "for...of" with other expression', () => {
+      const template = '${hello for (let i of arg) {<i>${i}</i>}}';
+      const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
+      const res = invoke([1], 'Hello, World!');
 
-      let invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke([1], 'Hello, World!'),
-        'Hello, World!<i>1</i>'
-      );
+      assert(res, 'Hello, World!<i>1</i>');
     });
 
-    it(`The operator translation of 'while' with other expression`, () => {
-      let template =
-      '${hello while (arg.pop() > 0) {<i>${arg.length}</i>}}';
+    it('The operator translation of "while" with other expression', () => {
+      const template = '${hello while (arg.pop() > 0) {<i>${arg.length}</i>}}';
+      const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
+      const res = invoke([0, 1, 2], 'Hello, World!');
 
-      let invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-
-      assert.strictEqual(
-        invoke([0, 1, 2], 'Hello, World!'),
-        'Hello, World!<i>2</i><i>1</i>'
-      );
+      assert(res, 'Hello, World!<i>2</i><i>1</i>');
     });
   });
 
-  describe(`Exceptional parser behavior`, () => {
-    it(`String is a required argument`, () => {
-      assert.throws(() => {
+  describe('Exceptional parser behavior', () => {
+    it('String is a required argument', () => {
+      try {
         nebbia();
-      });
+      }
+      catch (err) {
+        assert(err.message === 'The method argument must be of string type');
+      }
     });
 
-    it(`Do not throw an exception when the expression is empty`, () => {
-      let invoke = new Function('return ' + nebbia('<i>${}</i>'));
-
-      assert.strictEqual(invoke(), '<i></i>');
+    it(
+      'When using a reserved keyword in a pattern string expression, ' +
+      'should throw an exception',
+    () => {
+      try {
+        nebbia('<i>${' + nebbia.Node.unity + '}</i>');
+      }
+      catch (err) {
+        assert(err.message === `${nebbia.Node.unity} is reserved keyword`);
+      }
     });
 
-    it(`The parser must skip the '$' character without the bracket '{'`, () => {
-      let template =
-      '<i>$</i>';
+    it('Do not throw an exception when the expression is empty', () => {
+      const template = '<i>${}</i>';
+      const invoke = new Function('return ' + nebbia(template));
+      const res = invoke();
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
-      assert.strictEqual(invoke(), template);
-
-      let template1 =
-      '<i>$$</i>';
-
-      let invoke1 = new Function('arg', 'return ' + nebbia(template1));
-      assert.strictEqual(invoke1(), template1);
-
-      let template2 =
-      '<i>$${arg}</i>';
-
-      let invoke2 = new Function('arg', 'return ' + nebbia(template2));
-      assert.strictEqual(invoke2(''), template);
-
-      let template3 =
-      '<i>${arg}$</i>';
-
-      let invoke3 = new Function('arg', 'return ' + nebbia(template3));
-      assert.strictEqual(invoke3(''), template);
+      assert(res === '<i></i>');
     });
 
-    it(`The parser must skip the space character inside an expression`, () => {
-      let template =
-      '${ if (arg > 0) {<i>${ arg }</i>} }';
+    it('The parser must skip the "$" character without the bracket "{"', () => {
+      const template = '<i>$</i>';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke();
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
+      assert(res === template);
 
-      assert.strictEqual(
-        invoke(1),
-        '<i>1</i>'
-      );
+      const template1 = '<i>$$</i>';
+      const invoke1 = new Function('arg', 'return ' + nebbia(template1));
+      const res1 = invoke1();
 
-      let template1 =
-      '${if (arg > 0) {<i>${arg }</i>} }';
+      assert(res1 === template1);
 
-      let invoke1 = new Function('arg', 'return ' + nebbia(template1));
+      const template2 = '<i>$${arg}</i>';
+      const invoke2 = new Function('arg', 'return ' + nebbia(template2));
+      const res2 = invoke2('');
 
-      assert.strictEqual(
-        invoke1(1),
-        '<i>1</i>'
-      );
+      assert(res2 === template);
 
-      let template2 =
-      '${ if (arg > 0) {<i>${ arg }</i>}}';
+      const template3 = '<i>${arg}$</i>';
+      const invoke3 = new Function('arg', 'return ' + nebbia(template3));
+      const res3 = invoke3('');
 
-      let invoke2 = new Function('arg', 'return ' + nebbia(template2));
-
-      assert.strictEqual(
-        invoke2(1),
-        '<i>1</i>'
-      );
+      assert(res3 === template);
     });
 
-    it(`The parser must skip lines enclosed '\`' in a inside an expression`, () => {
-      let template =
-      '${if (arg === `")"`) {<i>bracket</i>}}';
+    it('The parser must skip the space character inside an expression', () => {
+      const template = '${ if (arg > 0) {<i>${ arg }</i>} }';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke(1);
 
-      let invoke = new Function('arg', 'return ' + nebbia(template));
+      assert(res === '<i>1</i>');
 
-      assert.strictEqual(
-        invoke(`)`),
-        '<i>bracket</i>'
-      );
+      const template1 = '${if (arg > 0) {<i>${arg }</i>} }';
+      const invoke1 = new Function('arg', 'return ' + nebbia(template1));
+      const res1 = invoke1(1);
+
+      assert(res1 === '<i>1</i>');
+
+      const template2 = '${ if (arg > 0) {<i>${ arg }</i>}}';
+      const invoke2 = new Function('arg', 'return ' + nebbia(template2));
+      const res2 = invoke2(1);
+
+      assert(res2 === '<i>1</i>');
+    });
+
+    it(
+      'The parser must skip lines enclosed "\`" in a inside an expression',
+    () => {
+      const template = '${if (arg === `")"`) {<i>bracket</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+      const res = invoke(`)`);
+
+      assert(res === '<i>bracket</i>');
     });
   });
 });

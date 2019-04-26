@@ -55,6 +55,7 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 
 [nebbia(template)](#nebbiatemplate)
 - [class Node](#class-node)
+  - [static: Node.unity](#static-nodeunity)
   - [constructor: new Node()](#constructor-new-node)
   - [node.append(child)](#nodeappendchild)
   - [node.build()](#nodebuild)
@@ -67,7 +68,6 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 - [class Statement](#class-statement)
 - [class Text](#class-text)
 - [nebbia.parse(template)](#nebbiaparsetemplate)
-- [nebbia.unity](#nebbiaunity)
 
 #### nebbia(template)
 
@@ -131,7 +131,7 @@ The `Nebbia` uses JavaScript with an appropriate syntax to create a compilation 
 const nebbia = require('nebbia');
 
 const template = '${if (arg === true) {<p>${arg}</p>}}';
-const example = new Function('arg', 'return ' + example(template));
+const example = new Function('arg', 'return ' + nebbia(template));
 
 example(true); // <p>true</p>
 ```
@@ -207,6 +207,10 @@ example([0, 1]); // <p>1</p><p>0/p>
 <img src="http://yuml.me/diagram/scruffy;dir:LR/class/[Node]<-extends[Expression{bg:snow}],[Node]<-extends[Text{bg:snow}],[Node]<-extends[Statement{bg:snow}]">
 
 The following interfaces all inherit from `Node`’s methods and properties: [Expression](#class-expression), [Statement](#class-statement), [Text](#class-text).
+
+#### static: Node.unity
+
+<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`.
 
 #### constructor: new Node()
 
@@ -286,15 +290,17 @@ ${if (typeof value === 'string') {
 **index.js**
 
 ```js
-const FileSystem = require('pwd-fs');
 const nebbia = require('nebbia');
+const Pwdfs = require('pwd-fs');
 
-const pfs = new FileSystem();
+const pwdfs = new Pwdfs();
 
-pfs.read('./template.html').then((content) => {
-  let tree = nebbia.parse(content);
-  let template = tree.build();
-});
+async () => {
+  const content = await pwdfs.read('./template.html');
+
+  const tree = nebbia.parse(content);
+  const template = tree.build();
+};
 ```
 
 *tree:*
@@ -312,11 +318,7 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 `
 ```
 
-> NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.thml*
-
-#### nebbia.unity
-
-<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`.
+> NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.html*
 
 ## Development
 
