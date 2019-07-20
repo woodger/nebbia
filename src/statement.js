@@ -43,8 +43,10 @@ class Statement extends Node {
       }
     }
 
-    return '${((' + Node.unity + ')=>{' + this.name + '(' + this.value + ')' +
+    value = '${((' + Node.unity + ')=>{' + this.name + '(' + this.value + ')' +
     Node.unity + '+=`' + value + '`;return ' + Node.unity + '})(``)}';
+
+    return value;
   }
 }
 

@@ -1,52 +1,13 @@
 const assert = require('assert');
-const nebbia = require('../src');
+const nebbia = require('..');
 
-describe('Interaface', () => {
+describe('Interaface module', () => {
   it('The module must provide a function type', () => {
-    assert.strictEqual(typeof nebbia, 'function');
+    assert(typeof nebbia === 'function');
   });
 
   it('The module must contain a "#parse()" function', () => {
     assert(typeof nebbia.parse === 'function');
-  });
-
-  it('The module must contain "class Node" for building a syntax tree', () => {
-    assert(typeof nebbia.Node === 'function');
-  });
-
-  it('"Expression", "Text" and "Statement" must extentds "class Node"', () => {
-    assert(nebbia.Node.isPrototypeOf(nebbia.Expression));
-    assert(nebbia.Node.isPrototypeOf(nebbia.Text));
-    assert(nebbia.Node.isPrototypeOf(nebbia.Statement));
-  });
-
-  it('Interaface "constructor: new Node"', () => {
-    const node = new nebbia.Node();
-
-    assert(node.type === null);
-    assert(node.name === null);
-    assert(node.parent === null);
-    assert(node.value === '');
-    assert(node.childs instanceof Array);
-  });
-
-  it('Interaface "constructor: new Expression"', () => {
-    const node = new nebbia.Expression();
-
-    assert(node.type === 0);
-    assert(node.name === '#expression');
-  });
-
-  it('Interaface "constructor: new Text"', () => {
-    const node = new nebbia.Text();
-
-    assert(node.type === 1);
-    assert(node.name === '#text');
-  });
-
-  it('Interaface "constructor: new Statement"', () => {
-    const node = new nebbia.Statement();
-    assert(node.type === 2);
   });
 });
 
@@ -70,8 +31,10 @@ describe('#nebbia()', () => {
       const res = invoke(1);
       const def = invoke();
 
-      assert(res === '<i>1</i>');
-      assert(def === '<i>default</i>');
+      assert(
+        res === '<i>1</i>' &&
+        def === '<i>default</i>'
+      );
     });
 
     it('The method should perform an operator translation of "for"', () => {
@@ -234,7 +197,7 @@ describe('#nebbia()', () => {
       const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
       const res = invoke({foo: 1, bar: 2}, 'Hello, World!');
 
-      assert.strictEqual(res, 'Hello, World!<i>foo</i><i>bar</i>');
+      assert(res === 'Hello, World!<i>foo</i><i>bar</i>');
     });
 
     it('The operator translation of "for...of" with other expression', () => {

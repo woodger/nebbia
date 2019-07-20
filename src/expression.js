@@ -19,7 +19,9 @@ class Expression extends Node {
       value += i.build();
     }
 
-    return '`' + value + '`';
+    value = '`' + value + '`';
+
+    return value;
   }
 }
 
