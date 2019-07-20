@@ -9,7 +9,7 @@
 
 ### How it works?
 
-![yuml diagram](http://yuml.me/woodger/diagram/scruffy;dir:LR/class/[Template{bg:snow}]->parse[Syntax Tree],[Syntax_Tree]->compile[Template_String{bg:yellowgreen}],[Template_String]-.->[new_Function{bg:yellow}])
+![yuml diagram](http://yuml.me/woodger/diagram/scruffy;dir:LR/class/[Template{bg:snow}]->parse[Syntax_Tree],[Syntax_Tree]->compile[Template_String{bg:yellowgreen}],[Template_String]-.->[new_Function{bg:yellow}])
 
 Template literals are enclosed by the back-tick `` ` `` character instead of double or single quotes. Template literals can contain placeholders. These are indicated by the dollar sign and curly braces `` `${expression}` ``. The expressions in the placeholders and the text between them get passed to a function. The default function just concatenates the parts into a single string.
 
@@ -260,7 +260,7 @@ Name | value
 
 Represents a group of nodes resulting from parsing an expression on [Statement](#class-statement) and [Text](#class-text).
 
-![yuml diagram](http://yuml.me/diagram/scruffy;dir:LR/class/[Expression]-include[Text{bg:snow}],[Expression]-include[Statement{bg:snow}])
+![yuml diagram](http://yuml.me/diagram/scruffy;dir:LR/class/[Expression]-[Text],[Expression]-[Statement])
 
 #### class Text
 
