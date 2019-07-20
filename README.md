@@ -298,11 +298,11 @@ const tree = nebbia.parse(content);
 const template = tree.build();
 ```
 
-*tree:*
+*const tree:*
 
 <img alt="yuml diagram" src="http://yuml.me/diagram/scruffy;dir:LR/class/[root: Expression]-[if (typeof value === 'string'): Statement],[root: Expression]-[</div>: Text],[if (typeof value === 'string'): Statement]<>->true[Expression],[Expression]-[<p>: Text],[Expression]-[value: Expression],[root: Expression]-[<div>: Text],[Expression]-[</p>: Text]">
 
-*template:*
+*const template:*
 
 ```js
 `<div>
