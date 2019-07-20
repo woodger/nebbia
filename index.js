@@ -5,10 +5,10 @@
  * https://www.ecma-international.org/ecma-262/9.0/index.html
  */
 
-const Node = require('./node');
-const Expression = require('./expression');
-const Text = require('./text');
-const Statement = require('./statement');
+const Node = require('./src/node');
+const Expression = require('./src/expression');
+const Text = require('./src/text');
+const Statement = require('./src/statement');
 
 const re = {
   bracket: /^\s*\(/,
@@ -30,7 +30,7 @@ const parseExpression = (template, parent) => {
 
   for (let i = 0, count = template.length; i < count; i++) {
     let char = template[i];
-    let char1 = template[i + 1]; // <-- оптимизировать, добавив || '';
+    let char1 = template[i + 1];
     let char2 = template[i + 2];
     let char3 = template[i + 3];
 
@@ -257,12 +257,10 @@ const nebbia = (template) => {
   return func;
 };
 
-Object.assign(nebbia, {
+module.exports = Object.assign(nebbia, {
   Node,
   Expression,
   Statement,
   Text,
   parse
 });
-
-module.exports = nebbia;

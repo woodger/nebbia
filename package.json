@@ -1,6 +1,6 @@
 {
   "name": "nebbia",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "JavaScript Template literals (Template strings) compiler",
   "keywords": [
     "strings",
@@ -16,7 +16,7 @@
     "email": "woodger@ya.ru"
   },
   "license": "MIT",
-  "main": "src",
+  "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
@@ -24,6 +24,6 @@
     "node": ">=8.12.0"
   },
   "devDependencies": {
-    "mocha": "^6.1.4"
+    "mocha": "^6.2.0"
   }
 }
