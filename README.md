@@ -9,7 +9,7 @@
 
 ### How it works?
 
-<img src="http://yuml.me/diagram/scruffy;dir:LR/class/[Template{bg:snow}]->parse[Syntax Tree],[Syntax Tree]->compile[Template String{bg:yellowgreen}],[Template String]-.->[new Function(){bg:yellow}]">
+![yuml diagram](http://yuml.me/woodger/diagram/scruffy;dir:LR/class/[Template{bg:snow}]->parse[Syntax Tree],[Syntax_Tree]->compile[Template_String{bg:yellowgreen}],[Template_String]-.->[new_Function{bg:yellow}])
 
 Template literals are enclosed by the back-tick `` ` `` character instead of double or single quotes. Template literals can contain placeholders. These are indicated by the dollar sign and curly braces `` `${expression}` ``. The expressions in the placeholders and the text between them get passed to a function. The default function just concatenates the parts into a single string.
 
@@ -204,9 +204,9 @@ example([0, 1]); // <p>1</p><p>0/p>
 
 `Node` is an interface from which a number of `Tree` object types inherit. It allows those types to be treated similarly; for example, inheriting the same set of methods, or being tested in the same way.
 
-<img src="http://yuml.me/diagram/scruffy;dir:LR/class/[Node]<-extends[Expression{bg:snow}],[Node]<-extends[Text{bg:snow}],[Node]<-extends[Statement{bg:snow}]">
+![yuml diagram](http://yuml.me/woodger/diagram/scruffy;dir:LR/class/[Node]->extends[Expression{bg:snow}],[Node]->extends[Text{bg:snow}],[Node]->extends[Statement{bg:snow}])
 
-The following interfaces all inherit from `Node`’s methods and properties: [Expression](#class-expression), [Statement](#class-statement), [Text](#class-text).
+The following interfaces all inherit from `Node`’s methods and properties: [Expression](#class-expression), [Statement](#class-statement) and [Text](#class-text).
 
 #### static: Node.unity
 
@@ -260,7 +260,7 @@ Name | value
 
 Represents a group of nodes resulting from parsing an expression on [Statement](#class-statement) and [Text](#class-text).
 
-<img src="http://yuml.me/diagram/scruffy;dir:LR/class/[Expression]-[Text],[Expression]-[Statement]">
+![yuml diagram](http://yuml.me/diagram/scruffy;dir:LR/class/[Expression]-include[Text{bg:snow}],[Expression]-include[Statement{bg:snow}])
 
 #### class Text
 
@@ -291,21 +291,16 @@ ${if (typeof value === 'string') {
 
 ```js
 const nebbia = require('nebbia');
-const Pwdfs = require('pwd-fs');
+const fs = require('fs');
 
-const pwdfs = new Pwdfs();
-
-async () => {
-  const content = await pwdfs.read('./template.html');
-
-  const tree = nebbia.parse(content);
-  const template = tree.build();
-};
+const content = fs.readFileSync('./template.html');
+const tree = nebbia.parse(content);
+const template = tree.build();
 ```
 
 *tree:*
 
-<img src="http://yuml.me/diagram/scruffy;dir:LR/class/[root: Expression]-[if (typeof value === 'string'): Statement],[root: Expression]-[</div>: Text],[if (typeof value === 'string'): Statement]<>->true[Expression],[Expression]-[<p>: Text],[Expression]-[value: Expression],[root: Expression]-[<div>: Text],[Expression]-[</p>: Text]">
+<img alt="yuml diagram" src="http://yuml.me/diagram/scruffy;dir:LR/class/[root: Expression]-[if (typeof value === 'string'): Statement],[root: Expression]-[</div>: Text],[if (typeof value === 'string'): Statement]<>->true[Expression],[Expression]-[<p>: Text],[Expression]-[value: Expression],[root: Expression]-[<div>: Text],[Expression]-[</p>: Text]">
 
 *template:*
 
@@ -317,8 +312,6 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 </div>
 `
 ```
-
-> NOTE The example uses the [pwd-fs](https://github.com/woodger/pwd-fs) module to read the contents of the file *template.html*
 
 ## Development
 
