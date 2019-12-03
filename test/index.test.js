@@ -59,7 +59,7 @@ describe('#nebbia()', () => {
     it('The method should perform an operator translation of "for..of"', () => {
       const template = '${for (let i of arg) {<i>${i}</i>}}';
       const invoke = new Function('arg', 'return ' + nebbia(template));
-      const res = invoke([0, 1]);
+      const res = invoke([ 0, 1 ]);
 
       assert(res === '<i>0</i><i>1</i>');
     });
@@ -95,7 +95,7 @@ describe('#nebbia()', () => {
       const template = '${for (let [i] of arg) {<i>${i}</i>}}';
       const invoke = new Function('arg', 'return ' + nebbia(template));
       const res = invoke([
-        [0], [1]
+        [ 0 ], [ 1 ]
       ]);
 
       assert(res === '<i>0</i><i>1</i>');
@@ -105,8 +105,8 @@ describe('#nebbia()', () => {
       const template = '${for (let {i} of arg) {<i>${i}</i>}}';
       const invoke = new Function('arg', 'return ' + nebbia(template));
       const res = invoke([
-        {i: 0},
-        {i: 1}
+        { i: 0 },
+        { i: 1 }
       ]);
 
       assert(res === '<i>0</i><i>1</i>');
@@ -116,8 +116,8 @@ describe('#nebbia()', () => {
       const template = '${for (let {i = 0} of arg) {<i>${i}</i>}}';
       const invoke = new Function('arg', 'return ' + nebbia(template));
       const res = invoke([
-        {m: 0},
-        {i: 1}
+        { m: 0 },
+        { i: 1 }
       ]);
 
       assert(res === '<i>0</i><i>1</i>');
@@ -150,7 +150,7 @@ describe('#nebbia()', () => {
         '${if (arg) {<p>${for (let i of arg) {<i>${i}</i>}}</p>}}';
 
       const invoke = new Function('arg', 'return ' + nebbia(template));
-      const res = invoke([0, 1]);
+      const res = invoke([ 0, 1 ]);
 
       assert(res === '<p><i>0</i><i>1</i></p>');
     });
@@ -161,7 +161,7 @@ describe('#nebbia()', () => {
         '{<i>${arg.length}</i>}}</p>}}';
 
       const invoke = new Function('arg', 'return ' + nebbia(template));
-      const res = invoke([0, 1]);
+      const res = invoke([ 0, 1 ]);
 
       assert(res === '<p><i>1</i></p><p></p>');
     });
@@ -195,7 +195,11 @@ describe('#nebbia()', () => {
     it('The operator translation of "for...in" with other expression', () => {
       const template = '${hello for (let i in arg) {<i>${i}</i>}}';
       const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-      const res = invoke({foo: 1, bar: 2}, 'Hello, World!');
+
+      const res = invoke({
+        foo: 1,
+        bar: 2
+      }, 'Hello, World!');
 
       assert(res === 'Hello, World!<i>foo</i><i>bar</i>');
     });
@@ -203,7 +207,7 @@ describe('#nebbia()', () => {
     it('The operator translation of "for...of" with other expression', () => {
       const template = '${hello for (let i of arg) {<i>${i}</i>}}';
       const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-      const res = invoke([1], 'Hello, World!');
+      const res = invoke([ 1 ], 'Hello, World!');
 
       assert(res, 'Hello, World!<i>1</i>');
     });
@@ -211,7 +215,7 @@ describe('#nebbia()', () => {
     it('The operator translation of "while" with other expression', () => {
       const template = '${hello while (arg.pop() > 0) {<i>${arg.length}</i>}}';
       const invoke = new Function('arg', 'hello', 'return ' + nebbia(template));
-      const res = invoke([0, 1, 2], 'Hello, World!');
+      const res = invoke([ 0, 1, 2 ], 'Hello, World!');
 
       assert(res, 'Hello, World!<i>2</i><i>1</i>');
     });
@@ -291,6 +295,19 @@ describe('#nebbia()', () => {
       const res2 = invoke2(1);
 
       assert(res2 === '<i>1</i>');
+    });
+
+    it(
+      'The parser should not consider the space before the expression', () => {
+      const template = '${for(let i in arg){<i>${i}</i>}}';
+      const invoke = new Function('arg', 'return ' + nebbia(template));
+
+      const res = invoke({
+        foo: 1,
+        bar: 2
+      });
+
+      assert(res === '<i>foo</i><i>bar</i>');
     });
 
     it(

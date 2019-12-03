@@ -12,8 +12,7 @@ const Statement = require('./src/statement');
 
 const re = {
   bracket: /^\s*\(/,
-  brace: /^\s*\{/,
-  if: /^\s*\if\s*\(/
+  brace: /^\s*\{/
 };
 
 const parseExpression = (template, parent) => {
@@ -55,7 +54,7 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 2;
         char = '';
-        i += 2;
+        i += 1;
       }
       else if (
         char === 'e' && char1 === 'l' && char2 === 's' && char3 === 'e' &&
@@ -67,7 +66,7 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 1;
         char = '';
-        i += 4;
+        i += 3;
       }
       else if (
         char === 'f' && char1 === 'o' && char2 === 'r' &&
@@ -86,7 +85,7 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 2;
         char = '';
-        i += 3;
+        i += 2;
       }
       else if (
         char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
@@ -105,7 +104,7 @@ const parseExpression = (template, parent) => {
         buffer = '';
         mode = 2;
         char = '';
-        i += 5;
+        i += 4;
       }
       else {
         buffer += char;

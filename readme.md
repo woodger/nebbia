@@ -246,11 +246,11 @@ The structure of the name will differ with the `node` type. E.g. An [Statement](
 
 Possible values are:
 
-Name | value
------|------
-[Expression](#class-expression) | 0
-[Text](#class-text) | 1
-[Statement](#class-statement) | 2
+| Name                            | Value |
+|---------------------------------|:-----:|
+| [Expression](#class-expression) | 0     |
+| [Text](#class-text)             | 1     |
+| [Statement](#class-statement)   | 2     |
 
 #### node.value
 
