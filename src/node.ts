@@ -1,10 +1,10 @@
-export default class Node {
+export default abstract class Node {
   readonly type: number | null = null;
   readonly childs: Array<Node> = [];
 
   parent: Node | null = null;
-  value: string = '';
   name: string | null = null;
+  value: string = '';
 
   static unity = '__string__';
 
