@@ -1,5 +1,5 @@
-const assert = require('assert');
-const nebbia = require('..');
+import assert from 'assert';
+import nebbia from '../src';
 
 describe('Interaface module', () => {
   it('The module must provide a function type', () => {
@@ -74,15 +74,6 @@ describe('#nebbia()', () => {
   });
 
   describe('JavaScript syntax test group', () => {
-    it('The first argument to the method is a string type', () => {
-      try {
-        nebbia();
-      }
-      catch (err) {
-        assert(err.message === 'The method argument must be of string type');
-      }
-    });
-
     it('The parser must handle expressions', () => {
       const template = '${if (arg.toString()) {<i>${arg}</i>}}';
       const invoke = new Function('arg', 'return ' + nebbia(template));
@@ -222,15 +213,6 @@ describe('#nebbia()', () => {
   });
 
   describe('Exceptional parser behavior', () => {
-    it('String is a required argument', () => {
-      try {
-        nebbia();
-      }
-      catch (err) {
-        assert(err.message === 'The method argument must be of string type');
-      }
-    });
-
     it(
       'When using a reserved keyword in a pattern string expression, ' +
       'should throw an exception',

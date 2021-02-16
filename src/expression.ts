@@ -1,14 +1,10 @@
-const Node = require('./node');
+import Node from './node';
 
-class Expression extends Node {
-  constructor () {
-    super();
+export default class Expression extends Node {
+  readonly type: number = 0;
+  name: string = '#expression';
 
-    this.type = 0;
-    this.name = '#expression';
-  }
-
-  build () {
+  build(): string {
     if (this.value !== '') {
       return '${' + this.value + '}';
     }
@@ -24,5 +20,3 @@ class Expression extends Node {
     return value;
   }
 }
-
-module.exports = Expression;

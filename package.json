@@ -1,6 +1,6 @@
 {
   "name": "nebbia",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "description": "JavaScript Template literals (Template strings) compiler",
   "keywords": [
     "strings",
@@ -16,14 +16,20 @@
     "email": "woodger@ya.ru"
   },
   "license": "MIT",
-  "main": "index.js",
+  "main": "./lib/src/index.js",
+  "types": "./lib/src/index.d.ts",
   "scripts": {
-    "test": "mocha"
+    "build": "tsc",
+    "test": "mocha ./lib/test"
   },
   "engines": {
     "node": ">=8.12.0"
   },
   "devDependencies": {
-    "mocha": "^6.2.2"
+    "@tsconfig/node10": "^1.0.7",
+    "@types/mocha": "^8.2.0",
+    "@types/node": "^14.14.28",
+    "mocha": "^6.2.2",
+    "typescript": "^4.1.5"
   }
 }
