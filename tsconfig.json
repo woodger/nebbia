@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node10/tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "declaration": true,
+    "outDir": "./lib",
+  },
+  "include": [
+    "src/**/*",
+    "**/*.spec.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -7,6 +7,8 @@
 
 `Nebbia` is a JavaScript [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) compiler. Make the templates more expressive.
 
+To improve reliability and maintainability the code is migrated to [TypeScript](https://www.typescriptlang.org).
+
 ### How it works?
 
 ![yuml diagram](http://yuml.me/woodger/diagram/scruffy;dir:LR/class/[Template{bg:snow}]->parse[Syntax_Tree],[Syntax_Tree]->compile[Template_String{bg:yellowgreen}],[Template_String]-.->[new_Function{bg:yellow}])

@@ -1,24 +1,36 @@
-/**
- * This module for Node.js® implemented by following the ECMAScript® 2018
- * Language Specification Standard.
- *
- * https://www.ecma-international.org/ecma-262/9.0/index.html
- */
+import Node from './node';
+import Expression from './expression';
+import Text from './text';
+import Statement from './statement';
 
-const Node = require('./src/node');
-const Expression = require('./src/expression');
-const Text = require('./src/text');
-const Statement = require('./src/statement');
+export = Object.assign(nebbia, {
+  Node,
+  Expression,
+  Statement,
+  Text,
+  parse
+});
 
-const re = {
-  bracket: /^\s*\(/,
-  brace: /^\s*\{/
-};
+function parse(template: string): Node {
+  const ast = new Expression();
+  parseTemplate(template, ast);
 
-const parseExpression = (template, parent) => {
+  return ast;
+}
+
+function nebbia(template: string): string {
+  return parse(template).build();
+}
+
+function parseExpression(template: string, parent: Node): void {
   if (template.indexOf(Node.unity) > -1) {
     throw new Error(`${Node.unity} is reserved keyword`);
   }
+
+  const re = {
+    bracket: /^\s*\(/,
+    brace: /^\s*\{/
+  };
 
   let node = new Expression();
   let bracket = 0;
@@ -176,9 +188,9 @@ const parseExpression = (template, parent) => {
     node.value = buffer;
     parent.append(node);
   }
-};
+}
 
-const parseTemplate = (template, parent) => {
+function parseTemplate(template: string, parent: Node): void {
   let node = new Text();
   let brace = 0;
   let quote = 0;
@@ -236,30 +248,4 @@ const parseTemplate = (template, parent) => {
     node.value = buffer;
     parent.append(node);
   }
-};
-
-const parse = (template) => {
-  if (typeof template !== 'string') {
-    throw new TypeError('The method argument must be of string type');
-  };
-
-  const node = new Expression();
-  parseTemplate(template, node);
-
-  return node;
-};
-
-const nebbia = (template) => {
-  const tree = parse(template);
-  const func = tree.build();
-
-  return func;
-};
-
-module.exports = Object.assign(nebbia, {
-  Node,
-  Expression,
-  Statement,
-  Text,
-  parse
-});
+}

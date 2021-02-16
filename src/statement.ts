@@ -1,16 +1,11 @@
-const Node = require('./node');
+import Node from './node';
 
-class Statement extends Node {
-  constructor () {
-    super();
+export default class Statement extends Node {
+  readonly type: number = 2;
+  name = '';
 
-    this.type = 2;
-    this.name = '';
-  }
-
-  build () {
+  build(): string {
     let value = '';
-    let other = '';
 
     if (this.name === 'else') {
       return '';
@@ -20,7 +15,7 @@ class Statement extends Node {
       value += i.build();
     }
 
-    if (this.name === 'if') {
+    if (this.name === 'if' && this.parent !== null) {
       let index = -1;
 
       for (let i = this.parent.childs.length - 1; i >= 0; i--) {
@@ -44,10 +39,8 @@ class Statement extends Node {
     }
 
     value = '${((' + Node.unity + ')=>{' + this.name + '(' + this.value + ')' +
-    Node.unity + '+=`' + value + '`;return ' + Node.unity + '})(``)}';
+            Node.unity + '+=`' + value + '`;return ' + Node.unity + '})(``)}';
 
     return value;
   }
 }
-
-module.exports = Statement;

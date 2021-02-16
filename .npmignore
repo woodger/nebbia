@@ -1,8 +1,12 @@
-node_modules
-package-lock.json
-coverage
 test
-.git
-.gitignore
+src
+lib/test
+appveyor.yml
+node_modules
+coverage
+yarn.lock
+package-lock.json
 .nyc_output
 .travis.yml
+.gitignore
+.git
