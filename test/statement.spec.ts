@@ -2,6 +2,10 @@ import assert from 'assert';
 import nebbia from '../src';
 
 describe('class nebbia.Statement', () => {
+  it('Positive: Must be backwards compatible with #require', () => {
+    assert(require('../src').Statement === nebbia.Statement);
+  });
+
   it('Positive: The "class Statement" must be of function type', () => {
     assert(typeof nebbia.Statement === 'function');
   });

@@ -4,16 +4,14 @@ import Statement from './statement';
 import Text from './text';
 import parse from './parse';
 
-const nebbia = (template: string): string => {
+export default function nebbia(template: string): string {
   return parse(template).build();
-};
+}
 
-export default Object.assign(nebbia, {
+Object.assign(nebbia, {
   Node,
   Expression,
   Statement,
   Text,
   parse
 });
-
-module.exports = nebbia;
