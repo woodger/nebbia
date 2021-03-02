@@ -6,10 +6,10 @@ import parse from './parse';
 
 export interface INebbia {
   (template: string): string;
-  [key: string]: any
+  [key: string]: any;
 }
 
-const nebbia = <INebbia>function(template: string): string {
+const nebbia: INebbia = function(template: string): string {
   return parse(template).build();
 }
 
