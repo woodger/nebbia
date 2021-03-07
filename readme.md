@@ -5,6 +5,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/woodger/nebbia/badge.svg?branch=master)](https://coveralls.io/github/woodger/nebbia?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/woodger/nebbia/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/nebbia?targetFile=package.json)
 
+[![npm](https://nodei.co/npm/nebbia.png)](https://www.npmjs.com/package/nebbia)
+
 `Nebbia` is a JavaScript [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) compiler. Make the templates more expressive.
 
 To improve reliability and maintainability the code is migrated to [TypeScript](https://www.typescriptlang.org).
@@ -296,11 +298,11 @@ import fs from 'fs';
 import nebbia from 'nebbia';
 
 const content = fs.readFileSync('./template.html');
-const tree = nebbia.parse(content);
-const template = tree.build();
+const ast = nebbia.parse(content);
+const template = ast.build();
 ```
 
-*const tree:*
+*const ast:*
 
 <img alt="yuml diagram" src="http://yuml.me/diagram/scruffy;dir:LR/class/[root: Expression]-[if (typeof value === 'string'): Statement],[root: Expression]-[</div>: Text],[if (typeof value === 'string'): Statement]<>->true[Expression],[Expression]-[<p>: Text],[Expression]-[value: Expression],[root: Expression]-[<div>: Text],[Expression]-[</p>: Text]">
 
