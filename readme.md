@@ -130,23 +130,23 @@ The `Nebbia` uses JavaScript with an appropriate syntax to create a compilation 
 ##### if
 
 ```js
-const nebbia = require('nebbia');
+import nebbia from 'nebbia';
 
 const template = '${if (arg === true) {<p>${arg}</p>}}';
-const example = new Function('arg', 'return ' + nebbia(template));
+const invoke = new Function('arg', 'return ' + nebbia(template));
 
-example(true); // <p>true</p>
+invoke(true); // <p>true</p>
 ```
 
 ##### if...else
 
 ```js
-const nebbia = require('nebbia');
+import nebbia from 'nebbia';
 
 const template = '${if (arg === true) {<p>${arg}</p>} else {<p>else</p>}}';
-const example = new Function('arg', 'return ' + nebbia(template));
+const invoke = new Function('arg', 'return ' + nebbia(template));
 
-example(false); // <p>else</p>
+invoke(false); // <p>else</p>
 ```
 
 > NOTE Multiple `if...else` statements not support be nested to create an `else if` clause.
@@ -155,23 +155,23 @@ example(false); // <p>else</p>
 ##### for
 
 ```js
-const nebbia = require('nebbia');
+import nebbia from 'nebbia';
 
 const template = '${for (let i = 0; i < count; i++) {<p>${i}</p>}}';
-const example = new Function('count', 'return ' + nebbia(template));
+const invoke = new Function('count', 'return ' + nebbia(template));
 
-example(2); // <p>0</p><p>1</p>
+invoke(2); // <p>0</p><p>1</p>
 ```
 
 ##### for...in
 
 ```js
-const nebbia = require('nebbia');
+import nebbia from 'nebbia';
 
 const template = '${for (let i in obj) {<p>${i}</p>}}';
-const example = new Function('obj', 'return ' + nebbia(template));
+const invoke = new Function('obj', 'return ' + nebbia(template));
 
-example({
+invoke({
   fruit: 'apple',
   cart: 1
 }); // <p>fruit</p><p>cart</p>
@@ -180,23 +180,23 @@ example({
 ##### for...of
 
 ```js
-const nebbia = require('nebbia');
+import nebbia from 'nebbia';
 
 const template = '${for (let i of list) {<p>${i}</p>}}';
-const example = new Function('list', 'return ' + nebbia(template));
+const invoke = new Function('list', 'return ' + nebbia(template));
 
-example([0, 1]); // <p>0</p><p>1</p>
+invoke([ 0, 1 ]); // <p>0</p><p>1</p>
 ```
 
 ##### while
 
 ```js
-const nebbia = require('nebbia');
+import nebbia from 'nebbia';
 
 const template = '${while (list.pop() > -1) {<p>${i.length}</p>}}';
-const example = new Function('list', 'return ' + nebbia(template));
+const invoke = new Function('list', 'return ' + nebbia(template));
 
-example([0, 1]); // <p>1</p><p>0/p>
+invoke([ 0, 1 ]); // <p>1</p><p>0/p>
 ```
 
 > NOTE The `do...while` statement not implemented.
@@ -292,8 +292,8 @@ ${if (typeof value === 'string') {
 **index.js**
 
 ```js
-const nebbia = require('nebbia');
-const fs = require('fs');
+import fs from 'fs';
+import nebbia from 'nebbia';
 
 const content = fs.readFileSync('./template.html');
 const tree = nebbia.parse(content);
