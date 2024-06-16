@@ -1,17 +1,13 @@
-import assert from 'assert';
-import nebbia from '../src';
+import assert from 'node:assert';
+import nebbia, { Node, parse } from '../src';
 
 describe('Interaface module', () => {
-  it('Positive: Must be backwards compatible with #require', () => {
-    assert(require('../src') === nebbia);
-  });
-
   it('Positive: The module must provide a function type', () => {
     assert(typeof nebbia === 'function');
   });
 
   it('Positive: The module must contain a "#parse()" function', () => {
-    assert(typeof nebbia.parse === 'function');
+    assert(typeof parse === 'function');
   });
 });
 
@@ -244,7 +240,7 @@ describe('#nebbia()', () => {
       'should throw an exception',
     () => {
       assert.throws(() => {
-        nebbia('<i>${' + nebbia.Node.unity + '}</i>');
+        nebbia('<i>${' + Node.unity + '}</i>');
       });
     });
 

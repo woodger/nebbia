@@ -1,6 +1,6 @@
-import Node from './node';
+import { Node } from './node';
 
-export default class Text extends Node {
+export class Text extends Node {
   readonly type: number = 1;
   name: string = '#text';
 }

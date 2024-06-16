@@ -1,6 +1,6 @@
-import Node from './node';
+import { Node } from './node';
 
-export default class Expression extends Node {
+export class Expression extends Node {
   readonly type: number = 0;
   name: string = '#expression';
 

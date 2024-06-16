@@ -1,27 +1,24 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_1 = __importDefault(require("./node"));
-const expression_1 = __importDefault(require("./expression"));
-const text_1 = __importDefault(require("./text"));
-const statement_1 = __importDefault(require("./statement"));
+const node_1 = require("./node");
+const expression_1 = require("./expression");
+const text_1 = require("./text");
+const statement_1 = require("./statement");
 function parse(template) {
-    const ast = new expression_1.default();
+    const ast = new expression_1.Expression();
     parseTemplate(template, ast);
     return ast;
 }
 exports.default = parse;
 function parseExpression(template, parent) {
-    if (template.indexOf(node_1.default.unity) > -1) {
-        throw new Error(`${node_1.default.unity} is reserved keyword`);
+    if (template.indexOf(node_1.Node.unity) > -1) {
+        throw new Error(`${node_1.Node.unity} is reserved keyword`);
     }
     const re = {
         bracket: /^\s*\(/,
         brace: /^\s*\{/
     };
-    let node = new expression_1.default();
+    let node = new expression_1.Expression();
     let bracket = 0;
     let brace = 0;
     let quote = 0;
@@ -43,7 +40,7 @@ function parseExpression(template, parent) {
                     node.value = buffer;
                     parent.append(node);
                 }
-                node = new statement_1.default();
+                node = new statement_1.Statement();
                 node.name = 'if';
                 buffer = '';
                 mode = 2;
@@ -52,7 +49,7 @@ function parseExpression(template, parent) {
             }
             else if (char === 'e' && char1 === 'l' && char2 === 's' && char3 === 'e' &&
                 re.brace.test(template.substr(i + 4))) {
-                node = new statement_1.default();
+                node = new statement_1.Statement();
                 node.name = 'else';
                 buffer = '';
                 mode = 1;
@@ -66,7 +63,7 @@ function parseExpression(template, parent) {
                     node.value = buffer;
                     parent.append(node);
                 }
-                node = new statement_1.default();
+                node = new statement_1.Statement();
                 node.name = 'for';
                 buffer = '';
                 mode = 2;
@@ -80,7 +77,7 @@ function parseExpression(template, parent) {
                     node.value = buffer;
                     parent.append(node);
                 }
-                node = new statement_1.default();
+                node = new statement_1.Statement();
                 node.name = 'while';
                 buffer = '';
                 mode = 2;
@@ -128,7 +125,7 @@ function parseExpression(template, parent) {
                     }
                     parent.append(node);
                     parseTemplate(buffer, node);
-                    node = new expression_1.default();
+                    node = new expression_1.Expression();
                     buffer = '';
                     mode = mode >> 1;
                 }
@@ -148,7 +145,7 @@ function parseExpression(template, parent) {
     }
 }
 function parseTemplate(template, parent) {
-    let node = new text_1.default();
+    let node = new text_1.Text();
     let brace = 0;
     let quote = 0;
     let buffer = '';
@@ -181,7 +178,7 @@ function parseTemplate(template, parent) {
                     if (bufer !== '') {
                         parseExpression(buffer.trim(), parent);
                     }
-                    node = new text_1.default();
+                    node = new text_1.Text();
                     buffer = '';
                     char = '';
                     mode = mode >> 1;
@@ -195,4 +192,3 @@ function parseTemplate(template, parent) {
         parent.append(node);
     }
 }
-//# sourceMappingURL=parse.js.map

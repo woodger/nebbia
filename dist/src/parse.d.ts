@@ -1,2 +1,2 @@
-import Node from './node';
+import { Node } from './node';
 export default function parse(template: string): Node;

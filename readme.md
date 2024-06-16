@@ -19,7 +19,7 @@ Template literals are enclosed by the back-tick `` ` `` character instead of dou
 
 This is a very useful feature. The expression can only be used to interpolate strings. The following example demonstrates the problem of string interpolation.
 
-```js
+```ts
 `${1 + 1}` // '2'
 `${}` // SyntaxError: Unexpected token }
 `${if (true) {}}` // SyntaxError: Unexpected token if
@@ -71,7 +71,7 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 - [class Expression](#class-expression)
 - [class Statement](#class-statement)
 - [class Text](#class-text)
-- [nebbia.parse(template)](#nebbiaparsetemplate)
+- [parse(template)](#nebbiaparsetemplate)
 
 #### nebbia(template)
 
@@ -131,7 +131,7 @@ The `Nebbia` uses JavaScript with an appropriate syntax to create a compilation 
 
 ##### if
 
-```js
+```ts
 import nebbia from 'nebbia';
 
 const template = '${if (arg === true) {<p>${arg}</p>}}';
@@ -142,7 +142,7 @@ invoke(true); // <p>true</p>
 
 ##### if...else
 
-```js
+```ts
 import nebbia from 'nebbia';
 
 const template = '${if (arg === true) {<p>${arg}</p>} else {<p>else</p>}}';
@@ -156,7 +156,7 @@ invoke(false); // <p>else</p>
 
 ##### for
 
-```js
+```ts
 import nebbia from 'nebbia';
 
 const template = '${for (let i = 0; i < count; i++) {<p>${i}</p>}}';
@@ -167,7 +167,7 @@ invoke(2); // <p>0</p><p>1</p>
 
 ##### for...in
 
-```js
+```ts
 import nebbia from 'nebbia';
 
 const template = '${for (let i in obj) {<p>${i}</p>}}';
@@ -181,7 +181,7 @@ invoke({
 
 ##### for...of
 
-```js
+```ts
 import nebbia from 'nebbia';
 
 const template = '${for (let i of list) {<p>${i}</p>}}';
@@ -192,7 +192,7 @@ invoke([ 0, 1 ]); // <p>0</p><p>1</p>
 
 ##### while
 
-```js
+```ts
 import nebbia from 'nebbia';
 
 const template = '${while (list.pop() > -1) {<p>${i.length}</p>}}';
@@ -274,7 +274,7 @@ Represents the textual content.
 
 Contains the `name` of the statement, the condition is stored in the `value` of the `node`.
 
-#### nebbia.parse(template)
+#### parse(template)
 
 - `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. By default, `'__string__'` is the name of a variable used to concatenate strings. You can change a keyword by assigning a value to the `nebbia.unity` property.
 - returns: <[Expression](#class-expression)> Each branch of the tree ends in a `node`, and each `node` contains objects. Methods provides programmatic access to the tree; with them you can change the template strings structure.
@@ -283,7 +283,7 @@ An example of parsing the template:
 
 **template.html**
 
-```js
+```ts
 <div>
 ${if (typeof value === 'string') {
   <p>${value}</p>
@@ -293,12 +293,12 @@ ${if (typeof value === 'string') {
 
 **index.js**
 
-```js
+```ts
 import fs from 'fs';
-import nebbia from 'nebbia';
+import { parse } from 'nebbia';
 
 const content = fs.readFileSync('./template.html');
-const ast = nebbia.parse(content);
+const ast = parse(content);
 const template = ast.build();
 ```
 
@@ -308,7 +308,7 @@ const template = ast.build();
 
 *const template:*
 
-```js
+```ts
 `<div>
 ${((__string__)=>{if(typeof value === 'string')__string__+=`
   <p>${value}</p>
