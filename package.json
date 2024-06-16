@@ -1,6 +1,6 @@
 {
   "name": "nebbia",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "JavaScript Template literals (Template strings) compiler",
   "keywords": [
     "template literals",
