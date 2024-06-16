@@ -1,7 +1,7 @@
 # Nebbia
 
 [![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/nebbia/blob/master/LICENSE)
-[![Build Status](https://travis-ci.com/woodger/nebbia.svg?branch=master)](https://travis-ci.com/woodger/nebbia)
+[![Build Status](https://app.travis-ci.com/woodger/nebbia.svg?branch=master)](https://app.travis-ci.com/woodger/nebbia)
 [![Coverage Status](https://coveralls.io/repos/github/woodger/nebbia/badge.svg?branch=master)](https://coveralls.io/github/woodger/nebbia?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/woodger/nebbia/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/nebbia?targetFile=package.json)
 
