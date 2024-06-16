@@ -1,4 +1,4 @@
-export default abstract class Node {
+export abstract class Node {
   readonly type: number | null = null;
   readonly childs: Array<Node> = [];
 

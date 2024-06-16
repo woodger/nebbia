@@ -1,15 +1,10 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_1 = __importDefault(require("./node"));
-class Statement extends node_1.default {
-    constructor() {
-        super(...arguments);
-        this.type = 2;
-        this.name = '';
-    }
+exports.Statement = void 0;
+const node_1 = require("./node");
+class Statement extends node_1.Node {
+    type = 2;
+    name = '';
     build() {
         let value = '';
         if (this.name === 'else') {
@@ -32,13 +27,12 @@ class Statement extends node_1.default {
                 for (let i of next.childs) {
                     other += i.build();
                 }
-                value += '`;else ' + node_1.default.unity + '+=`' + other;
+                value += '`;else ' + node_1.Node.unity + '+=`' + other;
             }
         }
-        value = '${((' + node_1.default.unity + ')=>{' + this.name + '(' + this.value + ')' +
-            node_1.default.unity + '+=`' + value + '`;return ' + node_1.default.unity + '})(``)}';
+        value = '${((' + node_1.Node.unity + ')=>{' + this.name + '(' + this.value + ')' +
+            node_1.Node.unity + '+=`' + value + '`;return ' + node_1.Node.unity + '})(``)}';
         return value;
     }
 }
-exports.default = Statement;
-//# sourceMappingURL=statement.js.map
+exports.Statement = Statement;

@@ -1,6 +1,6 @@
-import Node from './node';
+import { Node } from './node';
 
-export default class Statement extends Node {
+export class Statement extends Node {
   readonly type: number = 2;
   name = '';
 
