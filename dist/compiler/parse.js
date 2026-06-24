@@ -18,6 +18,19 @@ function parse(template) {
     parseTemplate(template, ast);
     return ast;
 }
+function readControlStatement(template, offset, buffer) {
+    if (buffer.trim() !== '') {
+        return null;
+    }
+    const match = /^(break|continue)\s*;?(?=\s*$)/.exec(template.substr(offset));
+    if (match === null) {
+        return null;
+    }
+    return {
+        name: match[1],
+        length: match[0].length
+    };
+}
 function parseExpression(template, parent) {
     // Compiler использует marker как имя accumulator, поэтому шаблон не должен его затенять.
     if (template.indexOf(node_1.default.unity) > -1) {
@@ -52,9 +65,18 @@ function parseExpression(template, parent) {
                     skipDoWhileSemicolon = false;
                 }
             }
+            const control = readControlStatement(template, i, buffer);
             const elseIf = char === 'e' ? /^else\s+if(?=\s*\()/.exec(template.substr(i)) : null;
             // Statement keywords распознаются только на верхнем уровне expression.
-            if (char === 'i' && char1 === 'f' &&
+            if (control !== null) {
+                node = new statement_1.default();
+                node.name = control.name;
+                parent.append(node);
+                node = new expression_1.default();
+                buffer = '';
+                i += control.length - 1;
+            }
+            else if (char === 'i' && char1 === 'f' &&
                 re.bracket.test(template.substr(i + 2))) {
                 buffer = buffer.trim();
                 if (buffer !== '') {

@@ -6,5 +6,11 @@ export default class Statement extends Node {
     build(): string;
     private buildIfStatement;
     private buildChildren;
+    private buildStatementNode;
     private buildStatement;
+    private buildTemplateAppend;
+    private assertInsideIteration;
+    private isBranchStatement;
+    private isControlStatement;
+    private isIterationStatement;
 }

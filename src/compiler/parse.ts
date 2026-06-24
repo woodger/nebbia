@@ -16,6 +16,27 @@ export default function parse(template: string): Node {
   return ast;
 }
 
+function readControlStatement(
+  template: string,
+  offset: number,
+  buffer: string
+): { name: string; length: number } | null {
+  if (buffer.trim() !== '') {
+    return null;
+  }
+
+  const match = /^(break|continue)\s*;?(?=\s*$)/.exec(template.substr(offset));
+
+  if (match === null) {
+    return null;
+  }
+
+  return {
+    name: match[1],
+    length: match[0].length
+  };
+}
+
 function parseExpression(template: string, parent: Node): void {
   // Compiler использует marker как имя accumulator, поэтому шаблон не должен его затенять.
   if (template.indexOf(Node.unity) > -1) {
@@ -56,10 +77,20 @@ function parseExpression(template: string, parent: Node): void {
         }
       }
 
+      const control = readControlStatement(template, i, buffer);
       const elseIf = char === 'e' ? /^else\s+if(?=\s*\()/.exec(template.substr(i)) : null;
 
       // Statement keywords распознаются только на верхнем уровне expression.
-      if (
+      if (control !== null) {
+        node = new Statement();
+        node.name = control.name;
+        parent.append(node);
+
+        node = new Expression();
+        buffer = '';
+        i += control.length - 1;
+      }
+      else if (
         char === 'i' && char1 === 'f' &&
         re.bracket.test(template.substr(i + 2))
       ) {

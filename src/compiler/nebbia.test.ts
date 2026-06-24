@@ -145,6 +145,47 @@ describe('#nebbia()', () => {
 
       assert.strictEqual(invoke(1), '<i>1</i><i>0</i>');
     });
+
+    test('translates break statements inside for statements', () => {
+      const invoke = compileTemplate(
+        '${for (let i = 0; i < arg; i++) {' +
+        '${if (i === 2) {${break}}}<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(4), '<i>0</i><i>1</i>');
+    });
+
+    test('translates continue statements inside for statements', () => {
+      const invoke = compileTemplate(
+        '${for (let i = 0; i < arg; i++) {' +
+        '${if (i % 2 === 0) {${continue;}}}<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(5), '<i>1</i><i>3</i>');
+    });
+
+    test('translates break statements inside while statements', () => {
+      const invoke = compileTemplate(
+        '${while (arg.length > 0) {' +
+        '${if (arg[0] === 0) {${break}}}<i>${arg.shift()}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke([ 2, 1, 0, 3 ]), '<i>2</i><i>1</i>');
+    });
+
+    test('translates continue statements inside while statements', () => {
+      const invoke = compileTemplate(
+        '${while ((value = arg.shift()) !== undefined) {' +
+        '${if (value === 0) {${continue}}}<i>${value}</i>}}',
+        'arg',
+        'value'
+      );
+
+      assert.strictEqual(invoke([ 1, 0, 2 ]), '<i>1</i><i>2</i>');
+    });
   });
 
   describe('JavaScript syntax', () => {
@@ -229,6 +270,20 @@ describe('#nebbia()', () => {
         'Statement "do" must include while condition'
       );
     });
+
+    test('throws when break statement is outside an iteration statement', () => {
+      assertThrowsError(
+        () => nebbia('${break}'),
+        'Statement "break" must be used inside iteration statements'
+      );
+    });
+
+    test('throws when continue statement is outside an iteration statement', () => {
+      assertThrowsError(
+        () => nebbia('${if (true) {${continue}}}'),
+        'Statement "continue" must be used inside iteration statements'
+      );
+    });
   });
 
   describe('Nested expressions', () => {
@@ -258,6 +313,22 @@ describe('#nebbia()', () => {
       );
 
       assert.strictEqual(invoke([ 0, 1 ]), '<i>1</i><i>0</i>');
+    });
+
+    test('keeps break statements inside the nearest nested loop', () => {
+      const invoke = compileTemplate(
+        '${for (let row of arg) {<p>${for (let value of row) {' +
+        '${if (value === 0) {${break}}}<i>${value}</i>}}</p>}}',
+        'arg'
+      );
+
+      assert.strictEqual(
+        invoke([
+          [ 1, 0, 2 ],
+          [ 3, 4 ]
+        ]),
+        '<p><i>1</i></p><p><i>3</i><i>4</i></p>'
+      );
     });
   });
 
@@ -416,6 +487,14 @@ describe('#nebbia()', () => {
       );
 
       assert.strictEqual(invoke(`)`), '<i>bracket</i>');
+    });
+
+    test('preserves break and continue words as template text', () => {
+      const invoke = compileTemplate(
+        '${for (let i = 0; i < 1; i++) {break continue}}'
+      );
+
+      assert.strictEqual(invoke(), 'break continue');
     });
   });
 });

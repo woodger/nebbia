@@ -9,21 +9,14 @@ class Statement extends node_1.default {
     type = 2;
     name = '';
     build() {
-        if (this.name === 'else' || this.name === 'else if') {
+        if (this.isBranchStatement()) {
             // else-nodes исполняются через предыдущий if, чтобы сохранить старый AST shape.
             return '';
         }
-        if (this.name === 'if') {
-            return this.buildStatement(this.buildIfStatement());
-        }
-        const value = this.buildChildren(this);
-        if (this.name === 'do') {
-            return this.buildStatement('do ' + node_1.default.unity + '+=`' + value + '`;while(' + this.value + ')');
-        }
-        return this.buildStatement(this.name + '(' + this.value + ')' + node_1.default.unity + '+=`' + value + '`');
+        return this.buildStatement(this.buildStatementNode(this));
     }
     buildIfStatement() {
-        let value = 'if(' + this.value + ')' + node_1.default.unity + '+=`' + this.buildChildren(this) + '`';
+        let value = 'if(' + this.value + '){' + this.buildChildren(this) + '}';
         if (this.parent === null) {
             return value;
         }
@@ -34,10 +27,10 @@ class Statement extends node_1.default {
         for (let i = index + 1; i < this.parent.childs.length; i++) {
             const next = this.parent.childs[i];
             if (next.name === 'else if') {
-                value += ';else if(' + next.value + ')' + node_1.default.unity + '+=`' + this.buildChildren(next) + '`';
+                value += 'else if(' + next.value + '){' + this.buildChildren(next) + '}';
             }
             else if (next.name === 'else') {
-                value += ';else ' + node_1.default.unity + '+=`' + this.buildChildren(next) + '`';
+                value += 'else{' + this.buildChildren(next) + '}';
                 break;
             }
             else {
@@ -48,14 +41,64 @@ class Statement extends node_1.default {
     }
     buildChildren(node) {
         let value = '';
+        let template = '';
         for (const i of node.childs) {
-            value += i.build();
+            if (i instanceof Statement) {
+                value += this.buildTemplateAppend(template);
+                value += this.buildStatementNode(i);
+                template = '';
+            }
+            else {
+                template += i.build();
+            }
         }
+        value += this.buildTemplateAppend(template);
         return value;
+    }
+    buildStatementNode(node) {
+        if (node.isBranchStatement()) {
+            return '';
+        }
+        if (node.isControlStatement()) {
+            node.assertInsideIteration();
+            return node.name + ';';
+        }
+        if (node.name === 'if') {
+            return node.buildIfStatement();
+        }
+        if (node.name === 'do') {
+            return 'do{' + this.buildChildren(node) + '}while(' + node.value + ')';
+        }
+        return node.name + '(' + node.value + '){' + this.buildChildren(node) + '}';
     }
     buildStatement(statement) {
         // Statement body пишет результат в private accumulator и возвращает его как expression.
         return '${((' + node_1.default.unity + ')=>{' + statement + ';return ' + node_1.default.unity + '})(``)}';
+    }
+    buildTemplateAppend(value) {
+        if (value === '') {
+            return '';
+        }
+        return node_1.default.unity + '+=`' + value + '`;';
+    }
+    assertInsideIteration() {
+        let parent = this.parent;
+        while (parent !== null) {
+            if (parent instanceof Statement && parent.isIterationStatement()) {
+                return;
+            }
+            parent = parent.parent;
+        }
+        throw new Error(`Statement "${this.name}" must be used inside iteration statements`);
+    }
+    isBranchStatement() {
+        return this.name === 'else' || this.name === 'else if';
+    }
+    isControlStatement() {
+        return this.name === 'break' || this.name === 'continue';
+    }
+    isIterationStatement() {
+        return this.name === 'for' || this.name === 'while' || this.name === 'do';
     }
 }
 exports.default = Statement;

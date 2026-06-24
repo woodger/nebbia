@@ -85,6 +85,26 @@ function assertThrowsError(fn, message) {
             const invoke = compileTemplate('${do {<i>${arg}</i>} while (arg-- > 0);}', 'arg');
             strict_1.default.strictEqual(invoke(1), '<i>1</i><i>0</i>');
         });
+        (0, node_test_1.test)('translates break statements inside for statements', () => {
+            const invoke = compileTemplate('${for (let i = 0; i < arg; i++) {' +
+                '${if (i === 2) {${break}}}<i>${i}</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke(4), '<i>0</i><i>1</i>');
+        });
+        (0, node_test_1.test)('translates continue statements inside for statements', () => {
+            const invoke = compileTemplate('${for (let i = 0; i < arg; i++) {' +
+                '${if (i % 2 === 0) {${continue;}}}<i>${i}</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke(5), '<i>1</i><i>3</i>');
+        });
+        (0, node_test_1.test)('translates break statements inside while statements', () => {
+            const invoke = compileTemplate('${while (arg.length > 0) {' +
+                '${if (arg[0] === 0) {${break}}}<i>${arg.shift()}</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke([2, 1, 0, 3]), '<i>2</i><i>1</i>');
+        });
+        (0, node_test_1.test)('translates continue statements inside while statements', () => {
+            const invoke = compileTemplate('${while ((value = arg.shift()) !== undefined) {' +
+                '${if (value === 0) {${continue}}}<i>${value}</i>}}', 'arg', 'value');
+            strict_1.default.strictEqual(invoke([1, 0, 2]), '<i>1</i><i>2</i>');
+        });
     });
     (0, node_test_1.describe)('JavaScript syntax', () => {
         (0, node_test_1.test)('handles expressions', () => {
@@ -124,6 +144,12 @@ function assertThrowsError(fn, message) {
         (0, node_test_1.test)('throws when do statement has no while condition', () => {
             assertThrowsError(() => (0, nebbia_1.default)('${do {<i></i>}}'), 'Statement "do" must include while condition');
         });
+        (0, node_test_1.test)('throws when break statement is outside an iteration statement', () => {
+            assertThrowsError(() => (0, nebbia_1.default)('${break}'), 'Statement "break" must be used inside iteration statements');
+        });
+        (0, node_test_1.test)('throws when continue statement is outside an iteration statement', () => {
+            assertThrowsError(() => (0, nebbia_1.default)('${if (true) {${continue}}}'), 'Statement "continue" must be used inside iteration statements');
+        });
     });
     (0, node_test_1.describe)('Nested expressions', () => {
         (0, node_test_1.test)('renders a for statement inside an if statement', () => {
@@ -138,6 +164,14 @@ function assertThrowsError(fn, message) {
         (0, node_test_1.test)('renders an expression inside a do...while statement', () => {
             const invoke = compileTemplate('${do {<i>${arg.pop()}</i>} while (arg.length > 0)}', 'arg');
             strict_1.default.strictEqual(invoke([0, 1]), '<i>1</i><i>0</i>');
+        });
+        (0, node_test_1.test)('keeps break statements inside the nearest nested loop', () => {
+            const invoke = compileTemplate('${for (let row of arg) {<p>${for (let value of row) {' +
+                '${if (value === 0) {${break}}}<i>${value}</i>}}</p>}}', 'arg');
+            strict_1.default.strictEqual(invoke([
+                [1, 0, 2],
+                [3, 4]
+            ]), '<p><i>1</i></p><p><i>3</i><i>4</i></p>');
         });
     });
     (0, node_test_1.describe)('Multiple statements', () => {
@@ -215,6 +249,10 @@ function assertThrowsError(fn, message) {
         (0, node_test_1.test)('ignores closing delimiters inside template strings', () => {
             const invoke = compileTemplate('${if (arg === `")"`) {<i>bracket</i>}}', 'arg');
             strict_1.default.strictEqual(invoke(`)`), '<i>bracket</i>');
+        });
+        (0, node_test_1.test)('preserves break and continue words as template text', () => {
+            const invoke = compileTemplate('${for (let i = 0; i < 1; i++) {break continue}}');
+            strict_1.default.strictEqual(invoke(), 'break continue');
         });
     });
 });
