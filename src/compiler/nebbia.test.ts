@@ -49,6 +49,42 @@ describe('#nebbia()', () => {
       assert.strictEqual(invoke(), '<i>default</i>');
     });
 
+    test('translates if...else if statements', () => {
+      const invoke = compileTemplate(
+        '${if (arg === 1) {<i>one</i>} else if (arg === 2) {<i>two</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>one</i>');
+      assert.strictEqual(invoke(2), '<i>two</i>');
+      assert.strictEqual(invoke(3), '');
+    });
+
+    test('translates if...else if...else statements', () => {
+      const invoke = compileTemplate(
+        '${if (arg === 1) {<i>one</i>} else if (arg === 2) ' +
+        '{<i>two</i>} else {<i>default</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>one</i>');
+      assert.strictEqual(invoke(2), '<i>two</i>');
+      assert.strictEqual(invoke(3), '<i>default</i>');
+    });
+
+    test('translates chained if...else if statements', () => {
+      const invoke = compileTemplate(
+        '${if (arg === 1) {<i>one</i>} else if (arg === 2) ' +
+        '{<i>two</i>} else if (arg === 3) {<i>three</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>one</i>');
+      assert.strictEqual(invoke(2), '<i>two</i>');
+      assert.strictEqual(invoke(3), '<i>three</i>');
+      assert.strictEqual(invoke(4), '');
+    });
+
     test('translates for statements', () => {
       const invoke = compileTemplate(
         '${for (let i = 0; i < arg; i++) {<i>${i}</i>}}',
@@ -89,6 +125,25 @@ describe('#nebbia()', () => {
       );
 
       assert.strictEqual(invoke(2), '<i>1</i><i>0</i>');
+    });
+
+    test('translates do...while statements', () => {
+      const invoke = compileTemplate(
+        '${do {<i>${arg}</i>} while (arg-- > 0)}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(2), '<i>2</i><i>1</i><i>0</i>');
+      assert.strictEqual(invoke(0), '<i>0</i>');
+    });
+
+    test('translates do...while statements with optional semicolon', () => {
+      const invoke = compileTemplate(
+        '${do {<i>${arg}</i>} while (arg-- > 0);}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>1</i><i>0</i>');
     });
   });
 
@@ -160,6 +215,20 @@ describe('#nebbia()', () => {
         'Statement "for" must include template content inside braces'
       );
     });
+
+    test('throws when do statement body is empty', () => {
+      assertThrowsError(
+        () => nebbia('${do {} while (true)}'),
+        'Statement "do" must include template content inside braces'
+      );
+    });
+
+    test('throws when do statement has no while condition', () => {
+      assertThrowsError(
+        () => nebbia('${do {<i></i>}}'),
+        'Statement "do" must include while condition'
+      );
+    });
   });
 
   describe('Nested expressions', () => {
@@ -180,6 +249,15 @@ describe('#nebbia()', () => {
       );
 
       assert.strictEqual(invoke([ 0, 1 ]), '<p><i>1</i></p><p></p>');
+    });
+
+    test('renders an expression inside a do...while statement', () => {
+      const invoke = compileTemplate(
+        '${do {<i>${arg.pop()}</i>} while (arg.length > 0)}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke([ 0, 1 ]), '<i>1</i><i>0</i>');
     });
   });
 

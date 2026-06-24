@@ -36,6 +36,27 @@ function assertThrowsError(fn, message) {
             strict_1.default.strictEqual(invoke(1), '<i>1</i>');
             strict_1.default.strictEqual(invoke(), '<i>default</i>');
         });
+        (0, node_test_1.test)('translates if...else if statements', () => {
+            const invoke = compileTemplate('${if (arg === 1) {<i>one</i>} else if (arg === 2) {<i>two</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke(1), '<i>one</i>');
+            strict_1.default.strictEqual(invoke(2), '<i>two</i>');
+            strict_1.default.strictEqual(invoke(3), '');
+        });
+        (0, node_test_1.test)('translates if...else if...else statements', () => {
+            const invoke = compileTemplate('${if (arg === 1) {<i>one</i>} else if (arg === 2) ' +
+                '{<i>two</i>} else {<i>default</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke(1), '<i>one</i>');
+            strict_1.default.strictEqual(invoke(2), '<i>two</i>');
+            strict_1.default.strictEqual(invoke(3), '<i>default</i>');
+        });
+        (0, node_test_1.test)('translates chained if...else if statements', () => {
+            const invoke = compileTemplate('${if (arg === 1) {<i>one</i>} else if (arg === 2) ' +
+                '{<i>two</i>} else if (arg === 3) {<i>three</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke(1), '<i>one</i>');
+            strict_1.default.strictEqual(invoke(2), '<i>two</i>');
+            strict_1.default.strictEqual(invoke(3), '<i>three</i>');
+            strict_1.default.strictEqual(invoke(4), '');
+        });
         (0, node_test_1.test)('translates for statements', () => {
             const invoke = compileTemplate('${for (let i = 0; i < arg; i++) {<i>${i}</i>}}', 'arg');
             strict_1.default.strictEqual(invoke(2), '<i>0</i><i>1</i>');
@@ -54,6 +75,15 @@ function assertThrowsError(fn, message) {
         (0, node_test_1.test)('translates while statements', () => {
             const invoke = compileTemplate('${while (arg-- > 0) {<i>${arg}</i>}}', 'arg');
             strict_1.default.strictEqual(invoke(2), '<i>1</i><i>0</i>');
+        });
+        (0, node_test_1.test)('translates do...while statements', () => {
+            const invoke = compileTemplate('${do {<i>${arg}</i>} while (arg-- > 0)}', 'arg');
+            strict_1.default.strictEqual(invoke(2), '<i>2</i><i>1</i><i>0</i>');
+            strict_1.default.strictEqual(invoke(0), '<i>0</i>');
+        });
+        (0, node_test_1.test)('translates do...while statements with optional semicolon', () => {
+            const invoke = compileTemplate('${do {<i>${arg}</i>} while (arg-- > 0);}', 'arg');
+            strict_1.default.strictEqual(invoke(1), '<i>1</i><i>0</i>');
         });
     });
     (0, node_test_1.describe)('JavaScript syntax', () => {
@@ -88,6 +118,12 @@ function assertThrowsError(fn, message) {
         (0, node_test_1.test)('throws when statement body is empty', () => {
             assertThrowsError(() => (0, nebbia_1.default)('${for (true) {}}'), 'Statement "for" must include template content inside braces');
         });
+        (0, node_test_1.test)('throws when do statement body is empty', () => {
+            assertThrowsError(() => (0, nebbia_1.default)('${do {} while (true)}'), 'Statement "do" must include template content inside braces');
+        });
+        (0, node_test_1.test)('throws when do statement has no while condition', () => {
+            assertThrowsError(() => (0, nebbia_1.default)('${do {<i></i>}}'), 'Statement "do" must include while condition');
+        });
     });
     (0, node_test_1.describe)('Nested expressions', () => {
         (0, node_test_1.test)('renders a for statement inside an if statement', () => {
@@ -98,6 +134,10 @@ function assertThrowsError(fn, message) {
             const invoke = compileTemplate('${while (arg.pop() > -1) {<p>${if (arg.length > 0) ' +
                 '{<i>${arg.length}</i>}}</p>}}', 'arg');
             strict_1.default.strictEqual(invoke([0, 1]), '<p><i>1</i></p><p></p>');
+        });
+        (0, node_test_1.test)('renders an expression inside a do...while statement', () => {
+            const invoke = compileTemplate('${do {<i>${arg.pop()}</i>} while (arg.length > 0)}', 'arg');
+            strict_1.default.strictEqual(invoke([0, 1]), '<i>1</i><i>0</i>');
         });
     });
     (0, node_test_1.describe)('Multiple statements', () => {

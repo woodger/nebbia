@@ -8,6 +8,10 @@ const node_1 = __importDefault(require("./node"));
 const expression_1 = __importDefault(require("./expression"));
 const text_1 = __importDefault(require("./text"));
 const statement_1 = __importDefault(require("./statement"));
+const READ_EXPRESSION = 0;
+const READ_STATEMENT_BODY = 1;
+const READ_STATEMENT_HEAD = 2;
+const READ_DO_WHILE = 3;
 // Parser строит AST для исторического синтаксиса `nebbia` без выполнения JavaScript.
 function parse(template) {
     const ast = new expression_1.default();
@@ -28,8 +32,8 @@ function parseExpression(template, parent) {
     let brace = 0;
     let quote = 0;
     let buffer = '';
-    // mode: 0 ищет expression/statement, 2 читает (...), 1 читает {...}.
-    let mode = 0;
+    let mode = READ_EXPRESSION;
+    let skipDoWhileSemicolon = false;
     for (let i = 0, count = template.length; i < count; i++) {
         let char = template[i];
         const char1 = template[i + 1];
@@ -38,7 +42,17 @@ function parseExpression(template, parent) {
         if (char === '`') {
             quote = ~quote;
         }
-        else if (quote === 0 && mode === 0) {
+        else if (quote === 0 && mode === READ_EXPRESSION) {
+            if (skipDoWhileSemicolon) {
+                if (char === ';') {
+                    skipDoWhileSemicolon = false;
+                    continue;
+                }
+                if (!/^\s$/.test(char)) {
+                    skipDoWhileSemicolon = false;
+                }
+            }
+            const elseIf = char === 'e' ? /^else\s+if(?=\s*\()/.exec(template.substr(i)) : null;
             // Statement keywords распознаются только на верхнем уровне expression.
             if (char === 'i' && char1 === 'f' &&
                 re.bracket.test(template.substr(i + 2))) {
@@ -50,15 +64,22 @@ function parseExpression(template, parent) {
                 node = new statement_1.default();
                 node.name = 'if';
                 buffer = '';
-                mode = 2;
+                mode = READ_STATEMENT_HEAD;
                 i += 1;
+            }
+            else if (elseIf !== null) {
+                node = new statement_1.default();
+                node.name = 'else if';
+                buffer = '';
+                mode = READ_STATEMENT_HEAD;
+                i += elseIf[0].length - 1;
             }
             else if (char === 'e' && char1 === 'l' && char2 === 's' && char3 === 'e' &&
                 re.brace.test(template.substr(i + 4))) {
                 node = new statement_1.default();
                 node.name = 'else';
                 buffer = '';
-                mode = 1;
+                mode = READ_STATEMENT_BODY;
                 i += 3;
             }
             else if (char === 'f' && char1 === 'o' && char2 === 'r' &&
@@ -71,7 +92,7 @@ function parseExpression(template, parent) {
                 node = new statement_1.default();
                 node.name = 'for';
                 buffer = '';
-                mode = 2;
+                mode = READ_STATEMENT_HEAD;
                 i += 2;
             }
             else if (char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
@@ -84,14 +105,41 @@ function parseExpression(template, parent) {
                 node = new statement_1.default();
                 node.name = 'while';
                 buffer = '';
-                mode = 2;
+                mode = READ_STATEMENT_HEAD;
                 i += 4;
+            }
+            else if (char === 'd' && char1 === 'o' &&
+                re.brace.test(template.substr(i + 2))) {
+                buffer = buffer.trim();
+                if (buffer !== '') {
+                    node.value = buffer;
+                    parent.append(node);
+                }
+                node = new statement_1.default();
+                node.name = 'do';
+                buffer = '';
+                mode = READ_STATEMENT_BODY;
+                i += 1;
             }
             else {
                 buffer += char;
             }
         }
-        else if (quote === 0 && mode & 2) {
+        else if (quote === 0 && mode === READ_DO_WHILE) {
+            if (/^\s$/.test(char)) {
+                continue;
+            }
+            if (char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
+                template[i + 4] === 'e' && re.bracket.test(template.substr(i + 5))) {
+                buffer = '';
+                mode = READ_STATEMENT_HEAD;
+                i += 4;
+            }
+            else {
+                throw new Error('Statement "do" must include while condition');
+            }
+        }
+        else if (quote === 0 && mode === READ_STATEMENT_HEAD) {
             // Первая фаза statement собирает условие/iterator между внешними скобками.
             if (char === '(') {
                 if (bracket === 0) {
@@ -107,14 +155,22 @@ function parseExpression(template, parent) {
                     }
                     node.value = buffer;
                     buffer = '';
-                    mode = mode >> 1;
+                    if (node.name === 'do') {
+                        parent.append(node);
+                        node = new expression_1.default();
+                        skipDoWhileSemicolon = true;
+                        mode = READ_EXPRESSION;
+                    }
+                    else {
+                        mode = READ_STATEMENT_BODY;
+                    }
                 }
             }
             if (bracket > 0) {
                 buffer += char;
             }
         }
-        else if (quote === 0 && mode & 1) {
+        else if (quote === 0 && mode === READ_STATEMENT_BODY) {
             // Вторая фаза statement собирает вложенный template body между внешними braces.
             if (char === '{') {
                 if (brace === 0) {
@@ -128,11 +184,16 @@ function parseExpression(template, parent) {
                     if (buffer === '') {
                         throw new Error(`Statement "${node.name}" must include template content inside braces`);
                     }
-                    parent.append(node);
                     parseTemplate(buffer, node);
-                    node = new expression_1.default();
                     buffer = '';
-                    mode = mode >> 1;
+                    if (node.name === 'do') {
+                        mode = READ_DO_WHILE;
+                    }
+                    else {
+                        parent.append(node);
+                        node = new expression_1.default();
+                        mode = READ_EXPRESSION;
+                    }
                 }
             }
             if (brace > 0) {
@@ -142,6 +203,9 @@ function parseExpression(template, parent) {
         else {
             buffer += char;
         }
+    }
+    if (mode === READ_DO_WHILE) {
+        throw new Error('Statement "do" must include while condition');
     }
     buffer = buffer.trim();
     if (buffer !== '') {

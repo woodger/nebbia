@@ -9,35 +9,53 @@ class Statement extends node_1.default {
     type = 2;
     name = '';
     build() {
-        let value = '';
-        if (this.name === 'else') {
-            // else-node исполняется через предыдущий if, чтобы сохранить старый AST shape.
+        if (this.name === 'else' || this.name === 'else if') {
+            // else-nodes исполняются через предыдущий if, чтобы сохранить старый AST shape.
             return '';
         }
-        for (const i of this.childs) {
+        if (this.name === 'if') {
+            return this.buildStatement(this.buildIfStatement());
+        }
+        const value = this.buildChildren(this);
+        if (this.name === 'do') {
+            return this.buildStatement('do ' + node_1.default.unity + '+=`' + value + '`;while(' + this.value + ')');
+        }
+        return this.buildStatement(this.name + '(' + this.value + ')' + node_1.default.unity + '+=`' + value + '`');
+    }
+    buildIfStatement() {
+        let value = 'if(' + this.value + ')' + node_1.default.unity + '+=`' + this.buildChildren(this) + '`';
+        if (this.parent === null) {
+            return value;
+        }
+        const index = this.parent.childs.indexOf(this);
+        if (index === -1) {
+            return value;
+        }
+        for (let i = index + 1; i < this.parent.childs.length; i++) {
+            const next = this.parent.childs[i];
+            if (next.name === 'else if') {
+                value += ';else if(' + next.value + ')' + node_1.default.unity + '+=`' + this.buildChildren(next) + '`';
+            }
+            else if (next.name === 'else') {
+                value += ';else ' + node_1.default.unity + '+=`' + this.buildChildren(next) + '`';
+                break;
+            }
+            else {
+                break;
+            }
+        }
+        return value;
+    }
+    buildChildren(node) {
+        let value = '';
+        for (const i of node.childs) {
             value += i.build();
         }
-        if (this.name === 'if' && this.parent !== null) {
-            let index = -1;
-            for (let i = this.parent.childs.length - 1; i >= 0; i--) {
-                if (this.parent.childs[i] === this) {
-                    index = i;
-                    break;
-                }
-            }
-            const next = this.parent.childs[index + 1];
-            if (next !== undefined && next.name === 'else') {
-                let other = '';
-                for (const i of next.childs) {
-                    other += i.build();
-                }
-                value += '`;else ' + node_1.default.unity + '+=`' + other;
-            }
-        }
-        // Statement body пишет результат в private accumulator и возвращает его как expression.
-        value = '${((' + node_1.default.unity + ')=>{' + this.name + '(' + this.value + ')' +
-            node_1.default.unity + '+=`' + value + '`;return ' + node_1.default.unity + '})(``)}';
         return value;
+    }
+    buildStatement(statement) {
+        // Statement body пишет результат в private accumulator и возвращает его как expression.
+        return '${((' + node_1.default.unity + ')=>{' + statement + ';return ' + node_1.default.unity + '})(``)}';
     }
 }
 exports.default = Statement;

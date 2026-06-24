@@ -6,44 +6,67 @@ export default class Statement extends Node {
   name = '';
 
   build(): string {
-    let value = '';
-
-    if (this.name === 'else') {
-      // else-node исполняется через предыдущий if, чтобы сохранить старый AST shape.
+    if (this.name === 'else' || this.name === 'else if') {
+      // else-nodes исполняются через предыдущий if, чтобы сохранить старый AST shape.
       return '';
     }
 
-    for (const i of this.childs) {
+    if (this.name === 'if') {
+      return this.buildStatement(this.buildIfStatement());
+    }
+
+    const value = this.buildChildren(this);
+
+    if (this.name === 'do') {
+      return this.buildStatement('do ' + Node.unity + '+=`' + value + '`;while(' + this.value + ')');
+    }
+
+    return this.buildStatement(this.name + '(' + this.value + ')' + Node.unity + '+=`' + value + '`');
+  }
+
+  private buildIfStatement(): string {
+    let value = 'if(' + this.value + ')' + Node.unity + '+=`' + this.buildChildren(this) + '`';
+
+    if (this.parent === null) {
+      return value;
+    }
+
+    const index = this.parent.childs.indexOf(this);
+
+    if (index === -1) {
+      return value;
+    }
+
+    for (let i = index + 1; i < this.parent.childs.length; i++) {
+      const next = this.parent.childs[i];
+
+      if (next.name === 'else if') {
+        value += ';else if(' + next.value + ')' + Node.unity + '+=`' + this.buildChildren(next) + '`';
+      }
+      else if (next.name === 'else') {
+        value += ';else ' + Node.unity + '+=`' + this.buildChildren(next) + '`';
+        break;
+      }
+      else {
+        break;
+      }
+    }
+
+    return value;
+  }
+
+  private buildChildren(node: Node): string {
+    let value = '';
+
+    for (const i of node.childs) {
       value += i.build();
     }
 
-    if (this.name === 'if' && this.parent !== null) {
-      let index = -1;
-
-      for (let i = this.parent.childs.length - 1; i >= 0; i--) {
-        if (this.parent.childs[i] === this) {
-          index = i;
-          break;
-        }
-      }
-
-      const next = this.parent.childs[index + 1];
-
-      if (next !== undefined && next.name === 'else') {
-        let other = '';
-
-        for (const i of next.childs) {
-          other += i.build();
-        }
-
-        value += '`;else ' + Node.unity + '+=`' + other;
-      }
-    }
-
-    // Statement body пишет результат в private accumulator и возвращает его как expression.
-    value = '${((' + Node.unity + ')=>{' + this.name + '(' + this.value + ')' +
-            Node.unity + '+=`' + value + '`;return ' + Node.unity + '})(``)}';
-
     return value;
+  }
+
+  private buildStatement(statement: string): string {
+    // Statement body пишет результат в private accumulator и возвращает его как expression.
+    return '${((' + Node.unity + ')=>{' + statement + ';return ' + Node.unity + '})(``)}';
   }
 }
