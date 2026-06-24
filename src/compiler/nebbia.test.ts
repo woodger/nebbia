@@ -1,0 +1,343 @@
+import assert from 'node:assert/strict';
+import { describe, test } from 'node:test';
+import nebbia from './nebbia';
+
+type TemplateFunction = (...values: unknown[]) => string;
+
+function compileTemplate(template: string, ...params: string[]): TemplateFunction {
+  const literal = nebbia(template);
+
+  return new Function(...params, `return ${literal}`) as TemplateFunction;
+}
+
+function assertThrowsError(fn: () => void, message: string): void {
+  try {
+    fn();
+  }
+  catch (error) {
+    if (!(error instanceof Error)) {
+      assert.fail(`Expected Error, got ${String(error)}`);
+    }
+
+    assert.strictEqual(error.constructor, Error);
+    assert.strictEqual(error.message, message);
+    return;
+  }
+
+  assert.fail('Expected function to throw an Error');
+}
+
+describe('#nebbia()', () => {
+  describe('JavaScript statements', () => {
+    test('translates if statements', () => {
+      const invoke = compileTemplate(
+        '${if (arg) {<i>${arg}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(), '');
+      assert.strictEqual(invoke(1), '<i>1</i>');
+    });
+
+    test('translates if...else statements', () => {
+      const invoke = compileTemplate(
+        '${if (arg) {<i>${arg}</i>} else {<i>default</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>1</i>');
+      assert.strictEqual(invoke(), '<i>default</i>');
+    });
+
+    test('translates for statements', () => {
+      const invoke = compileTemplate(
+        '${for (let i = 0; i < arg; i++) {<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(2), '<i>0</i><i>1</i>');
+    });
+
+    test('translates for...in statements', () => {
+      const invoke = compileTemplate(
+        '${for (let i in arg) {<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(
+        invoke({
+          foo: 1,
+          bar: 2
+        }),
+        '<i>foo</i><i>bar</i>'
+      );
+    });
+
+    test('translates for...of statements', () => {
+      const invoke = compileTemplate(
+        '${for (let i of arg) {<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke([ 0, 1 ]), '<i>0</i><i>1</i>');
+    });
+
+    test('translates while statements', () => {
+      const invoke = compileTemplate(
+        '${while (arg-- > 0) {<i>${arg}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(2), '<i>1</i><i>0</i>');
+    });
+  });
+
+  describe('JavaScript syntax', () => {
+    test('handles expressions', () => {
+      const invoke = compileTemplate(
+        '${if (arg.toString()) {<i>${arg}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>1</i>');
+    });
+
+    test('handles array destructuring', () => {
+      const invoke = compileTemplate(
+        '${for (let [i] of arg) {<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(
+        invoke([
+          [ 0 ],
+          [ 1 ]
+        ]),
+        '<i>0</i><i>1</i>'
+      );
+    });
+
+    test('handles object destructuring', () => {
+      const invoke = compileTemplate(
+        '${for (let {i} of arg) {<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(
+        invoke([
+          { i: 0 },
+          { i: 1 }
+        ]),
+        '<i>0</i><i>1</i>'
+      );
+    });
+
+    test('handles object destructuring defaults', () => {
+      const invoke = compileTemplate(
+        '${for (let {i = 0} of arg) {<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(
+        invoke([
+          { m: 0 },
+          { i: 1 }
+        ]),
+        '<i>0</i><i>1</i>'
+      );
+    });
+
+    test('throws when statement condition is empty', () => {
+      assertThrowsError(
+        () => nebbia('${for () {<i></i>}}'),
+        'Statement "for" must include content between parentheses'
+      );
+    });
+
+    test('throws when statement body is empty', () => {
+      assertThrowsError(
+        () => nebbia('${for (true) {}}'),
+        'Statement "for" must include template content inside braces'
+      );
+    });
+  });
+
+  describe('Nested expressions', () => {
+    test('renders a for statement inside an if statement', () => {
+      const invoke = compileTemplate(
+        '${if (arg) {<p>${for (let i of arg) {<i>${i}</i>}}</p>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke([ 0, 1 ]), '<p><i>0</i><i>1</i></p>');
+    });
+
+    test('renders an if statement inside a while statement', () => {
+      const invoke = compileTemplate(
+        '${while (arg.pop() > -1) {<p>${if (arg.length > 0) ' +
+        '{<i>${arg.length}</i>}}</p>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke([ 0, 1 ]), '<p><i>1</i></p><p></p>');
+    });
+  });
+
+  describe('Multiple statements', () => {
+    test('renders if statements with following expressions', () => {
+      const invoke = compileTemplate(
+        '${if (arg === true) {<i>1</i>} hello}',
+        'arg',
+        'hello'
+      );
+
+      assert.strictEqual(invoke(true, 'Hello, World!'), '<i>1</i>Hello, World!');
+    });
+
+    test('renders if...else statements with preceding expressions', () => {
+      const invoke = compileTemplate(
+        '${hello if (arg === true) {<i>1</i>} else {<i>0</i>}}',
+        'arg',
+        'hello'
+      );
+
+      assert.strictEqual(invoke(false, 'Hello, World!'), 'Hello, World!<i>0</i>');
+    });
+
+    test('renders for statements with preceding expressions', () => {
+      const invoke = compileTemplate(
+        '${hello for (let i = 0; i < 1; i++) {<i>${i}</i>}}',
+        'hello'
+      );
+
+      assert.strictEqual(invoke('Hello, World!'), 'Hello, World!<i>0</i>');
+    });
+
+    test('renders for...in statements with preceding expressions', () => {
+      const invoke = compileTemplate(
+        '${hello for (let i in arg) {<i>${i}</i>}}',
+        'arg',
+        'hello'
+      );
+
+      assert.strictEqual(
+        invoke({
+          foo: 1,
+          bar: 2
+        },
+        'Hello, World!'),
+        'Hello, World!<i>foo</i><i>bar</i>'
+      );
+    });
+
+    test('renders for...of statements with preceding expressions', () => {
+      const invoke = compileTemplate(
+        '${hello for (let i of arg) {<i>${i}</i>}}',
+        'arg',
+        'hello'
+      );
+
+      assert.strictEqual(invoke([ 1 ], 'Hello, World!'), 'Hello, World!<i>1</i>');
+    });
+
+    test('renders while statements with preceding expressions', () => {
+      const invoke = compileTemplate(
+        '${hello while (arg.pop() > 0) {<i>${arg.length}</i>}}',
+        'arg',
+        'hello'
+      );
+
+      assert.strictEqual(invoke([ 0, 1, 2 ], 'Hello, World!'), 'Hello, World!<i>2</i><i>1</i>');
+    });
+  });
+
+  describe('Exceptional parser behavior', () => {
+    test('throws when an expression uses the reserved unity marker', () => {
+      assertThrowsError(
+        () => nebbia('<i>${' + nebbia.Node.unity + '}</i>'),
+        `Reserved expression marker "${nebbia.Node.unity}" cannot be used in templates`
+      );
+    });
+
+    test('renders empty expressions as empty text', () => {
+      const invoke = compileTemplate('<i>${}</i>');
+
+      assert.strictEqual(invoke(), '<i></i>');
+    });
+
+    test('preserves standalone dollar characters', () => {
+      const invoke = compileTemplate('<i>$</i>', 'arg');
+
+      assert.strictEqual(invoke(), '<i>$</i>');
+    });
+
+    test('preserves repeated standalone dollar characters', () => {
+      const invoke = compileTemplate('<i>$$</i>', 'arg');
+
+      assert.strictEqual(invoke(), '<i>$$</i>');
+    });
+
+    test('keeps a dollar before an expression as text', () => {
+      const invoke = compileTemplate('<i>$${arg}</i>', 'arg');
+
+      assert.strictEqual(invoke(''), '<i>$</i>');
+    });
+
+    test('keeps a dollar after an expression as text', () => {
+      const invoke = compileTemplate('<i>${arg}$</i>', 'arg');
+
+      assert.strictEqual(invoke(''), '<i>$</i>');
+    });
+
+    test('allows spaces around nested expressions', () => {
+      const invoke = compileTemplate(
+        '${ if (arg > 0) {<i>${ arg }</i>} }',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>1</i>');
+    });
+
+    test('allows spaces before a closing expression brace', () => {
+      const invoke = compileTemplate(
+        '${if (arg > 0) {<i>${arg }</i>} }',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>1</i>');
+    });
+
+    test('allows spaces after an opening expression brace', () => {
+      const invoke = compileTemplate(
+        '${ if (arg > 0) {<i>${ arg }</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>1</i>');
+    });
+
+    test('parses statements without spaces before expressions', () => {
+      const invoke = compileTemplate(
+        '${for(let i in arg){<i>${i}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(
+        invoke({
+          foo: 1,
+          bar: 2
+        }),
+        '<i>foo</i><i>bar</i>'
+      );
+    });
+
+    test('ignores closing delimiters inside template strings', () => {
+      const invoke = compileTemplate(
+        '${if (arg === `")"`) {<i>bracket</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(`)`), '<i>bracket</i>');
+    });
+  });
+});
