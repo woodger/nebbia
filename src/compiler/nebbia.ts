@@ -4,18 +4,21 @@ import parse from './parse';
 /** Callable compiler with legacy constructor/helper properties attached to the function. */
 export interface INebbia {
   (template: string): string;
-  [key: string]: any;
+  Node: typeof Node;
+  Expression: typeof Expression;
+  Statement: typeof Statement;
+  Text: typeof Text;
+  parse: typeof parse;
 }
 
-const nebbia: INebbia = function(template: string): string {
+const nebbia: INebbia = Object.assign(function nebbia(template: string): string {
   return parse(template).build();
-};
-
-// Function properties preserve the legacy CommonJS public API.
-export default Object.assign(nebbia, {
+}, {
   Node,
   Expression,
   Statement,
   Text,
   parse
 });
+
+export default nebbia;

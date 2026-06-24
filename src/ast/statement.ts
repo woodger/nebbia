@@ -1,127 +1,92 @@
 import Node from './node';
 
-/** Statement node compiles supported JavaScript control blocks inside templates. */
+/** AST node for `if`, loops, branches, and loop controls. */
 export default class Statement extends Node {
   readonly type: number = 2;
   name = '';
 
   build(): string {
-    if (this.isBranchStatement()) {
-      // Branch nodes are emitted by the preceding if to preserve the legacy AST shape.
-      return '';
-    }
+    const buildChildren = (node: Node): string => {
+      let value = '';
+      let template = '';
 
-    return this.buildStatement(this.buildStatementNode(this));
-  }
+      for (const child of node.children) {
+        if (child instanceof Statement) {
+          if (template !== '') {
+            value += Node.unity + '+=`' + template + '`;';
+            template = '';
+          }
 
-  private buildIfStatement(): string {
-    let value = 'if(' + this.value + '){' + this.buildChildren(this) + '}';
+          value += buildNode(child);
+        }
+        else {
+          template += child.build();
+        }
+      }
 
-    if (this.parent === null) {
+      if (template !== '') {
+        value += Node.unity + '+=`' + template + '`;';
+      }
+
       return value;
-    }
+    };
 
-    const index = this.parent.children.indexOf(this);
+    const buildNode = (node: Statement): string => {
+      if (node.name === 'else' || node.name === 'else if') {
+        return '';
+      }
 
-    if (index === -1) {
+      if (node.name === 'break' || node.name === 'continue') {
+        let parent = node.parent;
+
+        while (parent !== null) {
+          if (
+            parent instanceof Statement &&
+            (parent.name === 'for' || parent.name === 'while' || parent.name === 'do')
+          ) {
+            return node.name + ';';
+          }
+
+          parent = parent.parent;
+        }
+
+        throw new Error(`Statement "${node.name}" must be used inside iteration statements`);
+      }
+
+      if (node.name === 'do') {
+        return 'do{' + buildChildren(node) + '}while(' + node.value + ')';
+      }
+
+      let value = node.name + '(' + node.value + '){' + buildChildren(node) + '}';
+
+      if (node.name === 'if' && node.parent !== null) {
+        const index = node.parent.children.indexOf(node);
+
+        if (index > -1) {
+          for (let i = index + 1; i < node.parent.children.length; i++) {
+            const next = node.parent.children[i];
+
+            if (next.name === 'else if') {
+              value += 'else if(' + next.value + '){' + buildChildren(next) + '}';
+            }
+            else if (next.name === 'else') {
+              value += 'else{' + buildChildren(next) + '}';
+              break;
+            }
+            else {
+              break;
+            }
+          }
+        }
+      }
+
       return value;
-    }
+    };
 
-    for (let i = index + 1; i < this.parent.children.length; i++) {
-      const next = this.parent.children[i];
-
-      if (next.name === 'else if') {
-        value += 'else if(' + next.value + '){' + this.buildChildren(next) + '}';
-      }
-      else if (next.name === 'else') {
-        value += 'else{' + this.buildChildren(next) + '}';
-        break;
-      }
-      else {
-        break;
-      }
-    }
-
-    return value;
-  }
-
-  private buildChildren(node: Node): string {
-    let value = '';
-    let template = '';
-
-    for (const i of node.children) {
-      if (i instanceof Statement) {
-        value += this.buildTemplateAppend(template);
-        value += this.buildStatementNode(i);
-        template = '';
-      }
-      else {
-        template += i.build();
-      }
-    }
-
-    value += this.buildTemplateAppend(template);
-
-    return value;
-  }
-
-  private buildStatementNode(node: Statement): string {
-    if (node.isBranchStatement()) {
+    if (this.name === 'else' || this.name === 'else if') {
       return '';
     }
 
-    if (node.isControlStatement()) {
-      node.assertInsideIteration();
-      return node.name + ';';
-    }
-
-    if (node.name === 'if') {
-      return node.buildIfStatement();
-    }
-
-    if (node.name === 'do') {
-      return 'do{' + this.buildChildren(node) + '}while(' + node.value + ')';
-    }
-
-    return node.name + '(' + node.value + '){' + this.buildChildren(node) + '}';
-  }
-
-  private buildStatement(statement: string): string {
-    // Statement bodies write into the private accumulator and return it as an expression.
-    return '${((' + Node.unity + ')=>{' + statement + ';return ' + Node.unity + '})(``)}';
-  }
-
-  private buildTemplateAppend(value: string): string {
-    if (value === '') {
-      return '';
-    }
-
-    return Node.unity + '+=`' + value + '`;';
-  }
-
-  private assertInsideIteration(): void {
-    let parent = this.parent;
-
-    while (parent !== null) {
-      if (parent instanceof Statement && parent.isIterationStatement()) {
-        return;
-      }
-
-      parent = parent.parent;
-    }
-
-    throw new Error(`Statement "${this.name}" must be used inside iteration statements`);
-  }
-
-  private isBranchStatement(): boolean {
-    return this.name === 'else' || this.name === 'else if';
-  }
-
-  private isControlStatement(): boolean {
-    return this.name === 'break' || this.name === 'continue';
-  }
-
-  private isIterationStatement(): boolean {
-    return this.name === 'for' || this.name === 'while' || this.name === 'do';
+    return '${((' + Node.unity + ')=>{' + buildNode(this) + ';return ' + Node.unity + '})(``)}';
   }
 }
