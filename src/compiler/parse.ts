@@ -1,14 +1,31 @@
+/**
+ * Parses Nebbia template source into the compiler AST.
+ *
+ * This file owns Nebbia DSL boundary detection and AST node placement.
+ * It delegates quote-aware source fragment reading to reader.ts.
+ * It must not evaluate JavaScript, generate output code, or define AST node behavior.
+ */
 import Node from './node';
 import Expression from './expression';
 import Text from './text';
 import Statement from './statement';
+import {
+  isQuote,
+  readBalanced,
+  readBalancedAfter,
+  readQuoted,
+  skipOptionalSemicolon,
+  skipWhitespace
+} from './reader';
 
-const READ_EXPRESSION = 0;
-const READ_STATEMENT_BODY = 1;
-const READ_STATEMENT_HEAD = 2;
-const READ_DO_WHILE = 3;
+type StatementReadResult = {
+  /** Statement node created from the parsed DSL block. */
+  node: Statement;
+  /** Index where expression parsing should resume. */
+  end: number;
+};
 
-// Parser строит AST для исторического синтаксиса `nebbia` без выполнения JavaScript.
+/** Parses a full template into the root expression AST node. */
 export default function parse(template: string): Node {
   const ast = new Expression();
   parseTemplate(template, ast);
@@ -16,29 +33,9 @@ export default function parse(template: string): Node {
   return ast;
 }
 
-function readControlStatement(
-  template: string,
-  offset: number,
-  buffer: string
-): { name: string; length: number } | null {
-  if (buffer.trim() !== '') {
-    return null;
-  }
-
-  const match = /^(break|continue)\s*;?(?=\s*$)/.exec(template.substr(offset));
-
-  if (match === null) {
-    return null;
-  }
-
-  return {
-    name: match[1],
-    length: match[0].length
-  };
-}
-
+/** Parses `${...}` content and appends expression or statement nodes to the parent AST node. */
 function parseExpression(template: string, parent: Node): void {
-  // Compiler использует marker как имя accumulator, поэтому шаблон не должен его затенять.
+  // The compiler uses this marker as the accumulator name, so templates cannot shadow it.
   if (template.indexOf(Node.unity) > -1) {
     throw new Error(`Reserved expression marker "${Node.unity}" cannot be used in templates`);
   }
@@ -48,242 +45,138 @@ function parseExpression(template: string, parent: Node): void {
     brace: /^\s*\{/
   };
 
-  let node = new Expression();
-  let bracket = 0;
-  let brace = 0;
-  let quote = 0;
   let buffer = '';
-  let mode = READ_EXPRESSION;
-  let skipDoWhileSemicolon = false;
 
   for (let i = 0, count = template.length; i < count; i++) {
-    let char = template[i];
+    const char = template[i];
     const char1 = template[i + 1];
     const char2 = template[i + 2];
     const char3 = template[i + 3];
 
-    if (char === '`') {
-      quote = ~quote;
+    if (isQuote(char)) {
+      const quoted = readQuoted(template, i);
+      buffer += quoted.value;
+      i = quoted.end;
+      continue;
     }
-    else if (quote === 0 && mode === READ_EXPRESSION) {
-      if (skipDoWhileSemicolon) {
-        if (char === ';') {
-          skipDoWhileSemicolon = false;
-          continue;
-        }
 
-        if (!/^\s$/.test(char)) {
-          skipDoWhileSemicolon = false;
-        }
-      }
+    const control =
+      (char === 'b' || char === 'c') && buffer.trim() === '' ?
+        /^(break|continue)\s*;?(?=\s*$)/.exec(template.slice(i)) :
+        null;
+    const elseIf = char === 'e' ? /^else\s+if(?=\s*\()/.exec(template.slice(i)) : null;
 
-      const control = readControlStatement(template, i, buffer);
-      const elseIf = char === 'e' ? /^else\s+if(?=\s*\()/.exec(template.substr(i)) : null;
+    // Statement keywords are recognized only at expression top level.
+    if (control !== null) {
+      const node = new Statement();
+      node.name = control[1];
+      parent.append(node);
 
-      // Statement keywords распознаются только на верхнем уровне expression.
-      if (control !== null) {
-        node = new Statement();
-        node.name = control.name;
-        parent.append(node);
-
-        node = new Expression();
-        buffer = '';
-        i += control.length - 1;
-      }
-      else if (
-        char === 'i' && char1 === 'f' &&
-        re.bracket.test(template.substr(i + 2))
-      ) {
-        buffer = buffer.trim();
-
-        if (buffer !== '') {
-          node.value = buffer;
-          parent.append(node);
-        }
-
-        node = new Statement();
-        node.name = 'if';
-
-        buffer = '';
-        mode = READ_STATEMENT_HEAD;
-        i += 1;
-      }
-      else if (elseIf !== null) {
-        node = new Statement();
-        node.name = 'else if';
-
-        buffer = '';
-        mode = READ_STATEMENT_HEAD;
-        i += elseIf[0].length - 1;
-      }
-      else if (
-        char === 'e' && char1 === 'l' && char2 === 's' && char3 === 'e' &&
-        re.brace.test(template.substr(i + 4))
-      ) {
-        node = new Statement();
-        node.name = 'else';
-
-        buffer = '';
-        mode = READ_STATEMENT_BODY;
-        i += 3;
-      }
-      else if (
-        char === 'f' && char1 === 'o' && char2 === 'r' &&
-        re.bracket.test(template.substr(i + 3))
-      ) {
-        buffer = buffer.trim();
-
-        if (buffer !== '') {
-          node.value = buffer;
-          parent.append(node);
-        }
-
-        node = new Statement();
-        node.name = 'for';
-
-        buffer = '';
-        mode = READ_STATEMENT_HEAD;
-        i += 2;
-      }
-      else if (
-        char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
-        template[i + 4] === 'e' && re.bracket.test(template.substr(i + 5))
-      ) {
-        buffer = buffer.trim();
-
-        if (buffer !== '') {
-          node.value = buffer;
-          parent.append(node);
-        }
-
-        node = new Statement();
-        node.name = 'while';
-
-        buffer = '';
-        mode = READ_STATEMENT_HEAD;
-        i += 4;
-      }
-      else if (
-        char === 'd' && char1 === 'o' &&
-        re.brace.test(template.substr(i + 2))
-      ) {
-        buffer = buffer.trim();
-
-        if (buffer !== '') {
-          node.value = buffer;
-          parent.append(node);
-        }
-
-        node = new Statement();
-        node.name = 'do';
-
-        buffer = '';
-        mode = READ_STATEMENT_BODY;
-        i += 1;
-      }
-      else {
-        buffer += char;
-      }
+      buffer = '';
+      i += control[0].length - 1;
     }
-    else if (quote === 0 && mode === READ_DO_WHILE) {
-      if (/^\s$/.test(char)) {
-        continue;
-      }
+    else if (
+      char === 'i' && char1 === 'f' &&
+      re.bracket.test(template.slice(i + 2))
+    ) {
+      appendExpression(buffer, parent);
 
-      if (
-        char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
-        template[i + 4] === 'e' && re.bracket.test(template.substr(i + 5))
-      ) {
-        buffer = '';
-        mode = READ_STATEMENT_HEAD;
-        i += 4;
-      }
-      else {
-        throw new Error('Statement "do" must include while condition');
-      }
+      const statement = readStatement(template, i, 'if', 2);
+      parent.append(statement.node);
+
+      buffer = '';
+      i = statement.end;
     }
-    else if (quote === 0 && mode === READ_STATEMENT_HEAD) {
-      // Первая фаза statement собирает условие/iterator между внешними скобками.
-      if (char === '(') {
-        if (bracket === 0) {
-          char = '';
-        }
+    else if (elseIf !== null) {
+      const statement = readStatement(template, i, 'else if', elseIf[0].length);
+      parent.append(statement.node);
 
-        bracket++;
-      }
-      else if (char === ')') {
-        bracket--;
-
-        if (bracket === 0) {
-          if (buffer === '') {
-            throw new Error(`Statement "${node.name}" must include content between parentheses`);
-          }
-
-          node.value = buffer;
-          buffer = '';
-
-          if (node.name === 'do') {
-            parent.append(node);
-            node = new Expression();
-            skipDoWhileSemicolon = true;
-            mode = READ_EXPRESSION;
-          }
-          else {
-            mode = READ_STATEMENT_BODY;
-          }
-        }
-      }
-
-      if (bracket > 0) {
-        buffer += char;
-      }
+      buffer = '';
+      i = statement.end;
     }
-    else if (quote === 0 && mode === READ_STATEMENT_BODY) {
-      // Вторая фаза statement собирает вложенный template body между внешними braces.
-      if (char === '{') {
-        if (brace === 0) {
-          char = '';
-        }
+    else if (
+      char === 'e' && char1 === 'l' && char2 === 's' && char3 === 'e' &&
+      re.brace.test(template.slice(i + 4))
+    ) {
+      const statement = readElseStatement(template, i);
+      parent.append(statement.node);
 
-        brace++;
-      }
-      else if (char === '}') {
-        brace--;
+      buffer = '';
+      i = statement.end;
+    }
+    else if (
+      char === 'f' && char1 === 'o' && char2 === 'r' &&
+      re.bracket.test(template.slice(i + 3))
+    ) {
+      appendExpression(buffer, parent);
 
-        if (brace === 0) {
-          if (buffer === '') {
-            throw new Error(`Statement "${node.name}" must include template content inside braces`);
-          }
+      const statement = readStatement(template, i, 'for', 3);
+      parent.append(statement.node);
 
-          parseTemplate(buffer, node);
+      buffer = '';
+      i = statement.end;
+    }
+    else if (
+      char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
+      template[i + 4] === 'e' && re.bracket.test(template.slice(i + 5))
+    ) {
+      appendExpression(buffer, parent);
 
-          buffer = '';
+      const statement = readStatement(template, i, 'while', 5);
+      parent.append(statement.node);
 
-          if (node.name === 'do') {
-            mode = READ_DO_WHILE;
-          }
-          else {
-            parent.append(node);
-            node = new Expression();
-            mode = READ_EXPRESSION;
-          }
-        }
-      }
+      buffer = '';
+      i = statement.end;
+    }
+    else if (
+      char === 'd' && char1 === 'o' &&
+      re.brace.test(template.slice(i + 2))
+    ) {
+      appendExpression(buffer, parent);
 
-      if (brace > 0) {
-        buffer += char;
-      }
+      const statement = readDoStatement(template, i);
+      parent.append(statement.node);
+
+      buffer = '';
+      i = statement.end;
     }
     else {
       buffer += char;
     }
   }
 
-  if (mode === READ_DO_WHILE) {
-    throw new Error('Statement "do" must include while condition');
-  }
+  appendExpression(buffer, parent);
+}
 
-  buffer = buffer.trim();
+/** Splits raw template text around compiler expressions and appends the resulting AST nodes. */
+function parseTemplate(template: string, parent: Node): void {
+  let node = new Text();
+  let buffer = '';
+
+  for (let i = 0, count = template.length; i < count; i++) {
+    const char = template[i];
+
+    if (char === '$' && template[i + 1] === '{') {
+      // Only top-level `${` starts a compiler expression; nested braces stay inside it.
+      if (buffer !== '') {
+        node.value = buffer;
+        parent.append(node);
+      }
+
+      const expression = readBalanced(template, i + 1, '{', '}', 1);
+
+      if (expression.value.trim() !== '') {
+        parseExpression(expression.value.trim(), parent);
+      }
+
+      node = new Text();
+      buffer = '';
+      i = expression.end;
+    }
+    else {
+      buffer += char;
+    }
+  }
 
   if (buffer !== '') {
     node.value = buffer;
@@ -291,64 +184,99 @@ function parseExpression(template: string, parent: Node): void {
   }
 }
 
-function parseTemplate(template: string, parent: Node): void {
-  let node = new Text();
-  let brace = 0;
-  let quote = 0;
-  let buffer = '';
-  // mode отделяет raw text от содержимого `${...}`.
-  let mode = 0;
+/** Appends a non-empty JavaScript expression after trimming wrapper whitespace. */
+function appendExpression(value: string, parent: Node): void {
+  const expression = value.trim();
 
-  for (let i = 0, count = template.length; i < count; i++) {
-    let char = template[i];
-
-    if (char === '`') {
-      quote = ~quote;
-    }
-    else if (char === '$' && template[i + 1] === '{' && brace === 0) {
-      // Только top-level `${` начинает compiler expression, вложенные braces остаются внутри.
-      if (buffer !== '') {
-        node.value = buffer;
-        parent.append(node);
-
-        buffer = '';
-      }
-
-      char = '';
-      mode = 1;
-    }
-    else if (quote === 0 && mode & 1) {
-      if (char === '{') {
-        if (brace === 0) {
-          char = '';
-        }
-
-        brace++;
-      }
-      else if (char === '}') {
-        brace--;
-
-        if (brace === 0) {
-          const expression = buffer.trim();
-
-          if (expression !== '') {
-            parseExpression(expression, parent);
-          }
-
-          node = new Text();
-          buffer = '';
-          char = '';
-
-          mode = mode >> 1;
-        }
-      }
-    }
-
-    buffer += char;
-  }
-
-  if (buffer !== '') {
-    node.value = buffer;
+  if (expression !== '') {
+    const node = new Expression();
+    node.value = expression;
     parent.append(node);
   }
+}
+
+/** Reads a condition-based statement block and returns the position where parsing should resume. */
+function readStatement(
+  template: string,
+  start: number,
+  name: string,
+  keywordLength: number
+): StatementReadResult {
+  const node = new Statement();
+  const condition = readBalancedAfter(template, start + keywordLength, '(', ')', 1);
+  const body = readBalancedAfter(template, condition.end + 1, '{', '}', 2);
+
+  if (condition.value === '') {
+    throw new Error(`Statement "${name}" must include content between parentheses`);
+  }
+
+  if (body.value === '') {
+    throw new Error(`Statement "${name}" must include template content inside braces`);
+  }
+
+  node.name = name;
+  node.value = condition.value;
+  parseTemplate(body.value, node);
+
+  return {
+    node,
+    end: body.end
+  };
+}
+
+/** Reads an else block, which has a body but no condition. */
+function readElseStatement(
+  template: string,
+  start: number
+): StatementReadResult {
+  const node = new Statement();
+  const body = readBalancedAfter(template, start + 4, '{', '}', 2);
+
+  if (body.value === '') {
+    throw new Error('Statement "else" must include template content inside braces');
+  }
+
+  node.name = 'else';
+  parseTemplate(body.value, node);
+
+  return {
+    node,
+    end: body.end
+  };
+}
+
+/** Reads a do block, whose body is followed by a separate while condition. */
+function readDoStatement(
+  template: string,
+  start: number
+): StatementReadResult {
+  const node = new Statement();
+  const body = readBalancedAfter(template, start + 2, '{', '}', 2);
+  const whileStart = skipWhitespace(template, body.end + 1);
+
+  if (body.value === '') {
+    throw new Error('Statement "do" must include template content inside braces');
+  }
+
+  if (
+    template.slice(whileStart, whileStart + 5) !== 'while' ||
+    !/^\s*\(/.test(template.slice(whileStart + 5))
+  ) {
+    throw new Error('Statement "do" must include while condition');
+  }
+
+  const condition = readBalancedAfter(template, whileStart + 5, '(', ')', 1);
+
+  if (condition.value === '') {
+    throw new Error('Statement "do" must include content between parentheses');
+  }
+
+  node.name = 'do';
+  node.value = condition.value;
+  parseTemplate(body.value, node);
+
+  return {
+    node,
+    end: skipOptionalSemicolon(template, condition.end)
+  };
 }

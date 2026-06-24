@@ -111,6 +111,31 @@ function assertThrowsError(fn, message) {
             const invoke = compileTemplate('${if (arg.toString()) {<i>${arg}</i>}}', 'arg');
             strict_1.default.strictEqual(invoke(1), '<i>1</i>');
         });
+        (0, node_test_1.test)('handles template literal expressions', () => {
+            const invoke = compileTemplate('<i>${`value:${arg}`}</i>', 'arg');
+            strict_1.default.strictEqual(invoke(1), '<i>value:1</i>');
+        });
+        (0, node_test_1.test)('ignores closing parentheses inside quoted statement conditions', () => {
+            const doubleQuoted = compileTemplate('${if (arg === ")") {<i>double</i>}}', 'arg');
+            const singleQuoted = compileTemplate('${if (arg === \')\') {<i>single</i>}}', 'arg');
+            strict_1.default.strictEqual(doubleQuoted(')'), '<i>double</i>');
+            strict_1.default.strictEqual(doubleQuoted('('), '');
+            strict_1.default.strictEqual(singleQuoted(')'), '<i>single</i>');
+            strict_1.default.strictEqual(singleQuoted('('), '');
+        });
+        (0, node_test_1.test)('ignores closing braces inside quoted statement conditions', () => {
+            const doubleQuoted = compileTemplate('${if (arg === "}") {<i>double</i>}}', 'arg');
+            const singleQuoted = compileTemplate('${if (arg === \'}\') {<i>single</i>}}', 'arg');
+            strict_1.default.strictEqual(doubleQuoted('}'), '<i>double</i>');
+            strict_1.default.strictEqual(doubleQuoted('{'), '');
+            strict_1.default.strictEqual(singleQuoted('}'), '<i>single</i>');
+            strict_1.default.strictEqual(singleQuoted('{'), '');
+        });
+        (0, node_test_1.test)('ignores closing braces inside quoted nested expressions', () => {
+            const invoke = compileTemplate('${if (arg) {<i>${arg === "}" ? "brace" : ""}</i>}}', 'arg');
+            strict_1.default.strictEqual(invoke('}'), '<i>brace</i>');
+            strict_1.default.strictEqual(invoke('{'), '<i></i>');
+        });
         (0, node_test_1.test)('handles array destructuring', () => {
             const invoke = compileTemplate('${for (let [i] of arg) {<i>${i}</i>}}', 'arg');
             strict_1.default.strictEqual(invoke([
@@ -248,7 +273,8 @@ function assertThrowsError(fn, message) {
         });
         (0, node_test_1.test)('ignores closing delimiters inside template strings', () => {
             const invoke = compileTemplate('${if (arg === `")"`) {<i>bracket</i>}}', 'arg');
-            strict_1.default.strictEqual(invoke(`)`), '<i>bracket</i>');
+            strict_1.default.strictEqual(invoke(`")"`), '<i>bracket</i>');
+            strict_1.default.strictEqual(invoke(`)`), '');
         });
         (0, node_test_1.test)('preserves break and continue words as template text', () => {
             const invoke = compileTemplate('${for (let i = 0; i < 1; i++) {break continue}}');

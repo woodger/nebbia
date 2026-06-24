@@ -198,6 +198,57 @@ describe('#nebbia()', () => {
       assert.strictEqual(invoke(1), '<i>1</i>');
     });
 
+    test('handles template literal expressions', () => {
+      const invoke = compileTemplate(
+        '<i>${`value:${arg}`}</i>',
+        'arg'
+      );
+
+      assert.strictEqual(invoke(1), '<i>value:1</i>');
+    });
+
+    test('ignores closing parentheses inside quoted statement conditions', () => {
+      const doubleQuoted = compileTemplate(
+        '${if (arg === ")") {<i>double</i>}}',
+        'arg'
+      );
+      const singleQuoted = compileTemplate(
+        '${if (arg === \')\') {<i>single</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(doubleQuoted(')'), '<i>double</i>');
+      assert.strictEqual(doubleQuoted('('), '');
+      assert.strictEqual(singleQuoted(')'), '<i>single</i>');
+      assert.strictEqual(singleQuoted('('), '');
+    });
+
+    test('ignores closing braces inside quoted statement conditions', () => {
+      const doubleQuoted = compileTemplate(
+        '${if (arg === "}") {<i>double</i>}}',
+        'arg'
+      );
+      const singleQuoted = compileTemplate(
+        '${if (arg === \'}\') {<i>single</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(doubleQuoted('}'), '<i>double</i>');
+      assert.strictEqual(doubleQuoted('{'), '');
+      assert.strictEqual(singleQuoted('}'), '<i>single</i>');
+      assert.strictEqual(singleQuoted('{'), '');
+    });
+
+    test('ignores closing braces inside quoted nested expressions', () => {
+      const invoke = compileTemplate(
+        '${if (arg) {<i>${arg === "}" ? "brace" : ""}</i>}}',
+        'arg'
+      );
+
+      assert.strictEqual(invoke('}'), '<i>brace</i>');
+      assert.strictEqual(invoke('{'), '<i></i>');
+    });
+
     test('handles array destructuring', () => {
       const invoke = compileTemplate(
         '${for (let [i] of arg) {<i>${i}</i>}}',
@@ -486,7 +537,8 @@ describe('#nebbia()', () => {
         'arg'
       );
 
-      assert.strictEqual(invoke(`)`), '<i>bracket</i>');
+      assert.strictEqual(invoke(`")"`), '<i>bracket</i>');
+      assert.strictEqual(invoke(`)`), '');
     });
 
     test('preserves break and continue words as template text', () => {
