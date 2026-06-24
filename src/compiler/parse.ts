@@ -5,10 +5,7 @@
  * It delegates quote-aware source fragment reading to reader.ts.
  * It must not evaluate JavaScript, generate output code, or define AST node behavior.
  */
-import Node from './node';
-import Expression from './expression';
-import Text from './text';
-import Statement from './statement';
+import { Expression, Node, Statement, Text } from '../ast';
 import {
   isQuote,
   readBalanced,

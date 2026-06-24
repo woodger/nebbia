@@ -1,6 +1,6 @@
 import Node from './node';
 
-/** Text-node хранит literal fragment шаблона без дополнительной компиляции. */
+/** Text node stores a literal template fragment without additional compilation. */
 export default class Text extends Node {
   readonly type: number = 1;
   name: string = '#text';

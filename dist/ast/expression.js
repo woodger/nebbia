@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_1 = __importDefault(require("./node"));
-/** Expression-node компилирует `${...}` или корневой template literal. */
+/** Expression node compiles `${...}` values or the root template literal. */
 class Expression extends node_1.default {
     type = 0;
     name = '#expression';

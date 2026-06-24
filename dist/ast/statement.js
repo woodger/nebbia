@@ -4,13 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_1 = __importDefault(require("./node"));
-/** Statement-node компилирует поддержанные JavaScript blocks внутри шаблона. */
+/** Statement node compiles supported JavaScript control blocks inside templates. */
 class Statement extends node_1.default {
     type = 2;
     name = '';
     build() {
         if (this.isBranchStatement()) {
-            // else-nodes исполняются через предыдущий if, чтобы сохранить старый AST shape.
+            // Branch nodes are emitted by the preceding if to preserve the legacy AST shape.
             return '';
         }
         return this.buildStatement(this.buildStatementNode(this));
@@ -72,7 +72,7 @@ class Statement extends node_1.default {
         return node.name + '(' + node.value + '){' + this.buildChildren(node) + '}';
     }
     buildStatement(statement) {
-        // Statement body пишет результат в private accumulator и возвращает его как expression.
+        // Statement bodies write into the private accumulator and return it as an expression.
         return '${((' + node_1.default.unity + ')=>{' + statement + ';return ' + node_1.default.unity + '})(``)}';
     }
     buildTemplateAppend(value) {

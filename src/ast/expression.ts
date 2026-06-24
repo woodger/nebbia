@@ -1,6 +1,6 @@
 import Node from './node';
 
-/** Expression-node компилирует `${...}` или корневой template literal. */
+/** Expression node compiles `${...}` values or the root template literal. */
 export default class Expression extends Node {
   readonly type: number = 0;
   name: string = '#expression';

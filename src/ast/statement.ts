@@ -1,13 +1,13 @@
 import Node from './node';
 
-/** Statement-node компилирует поддержанные JavaScript blocks внутри шаблона. */
+/** Statement node compiles supported JavaScript control blocks inside templates. */
 export default class Statement extends Node {
   readonly type: number = 2;
   name = '';
 
   build(): string {
     if (this.isBranchStatement()) {
-      // else-nodes исполняются через предыдущий if, чтобы сохранить старый AST shape.
+      // Branch nodes are emitted by the preceding if to preserve the legacy AST shape.
       return '';
     }
 
@@ -87,7 +87,7 @@ export default class Statement extends Node {
   }
 
   private buildStatement(statement: string): string {
-    // Statement body пишет результат в private accumulator и возвращает его как expression.
+    // Statement bodies write into the private accumulator and return it as an expression.
     return '${((' + Node.unity + ')=>{' + statement + ';return ' + Node.unity + '})(``)}';
   }
 

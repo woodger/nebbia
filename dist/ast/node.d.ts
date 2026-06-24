@@ -1,4 +1,4 @@
-/** Базовый AST-node для compiler tree. */
+/** Base AST node for the compiler tree. */
 export default abstract class Node {
     readonly type: number | null;
     readonly children: Array<Node>;

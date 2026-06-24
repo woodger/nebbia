@@ -1,4 +1,4 @@
-/** Базовый AST-node для compiler tree. */
+/** Base AST node for the compiler tree. */
 export default abstract class Node {
   readonly type: number | null = null;
   readonly children: Array<Node> = [];
@@ -7,7 +7,7 @@ export default abstract class Node {
   name: string | null = null;
   value: string = '';
 
-  // Внутренний accumulator name не может встречаться в пользовательском шаблоне.
+  // The internal accumulator name is reserved in user templates.
   static unity = '__string__';
 
   append(child: Node): void {

@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/** Базовый AST-node для compiler tree. */
+/** Base AST node for the compiler tree. */
 class Node {
     type = null;
     children = [];
     parent = null;
     name = null;
     value = '';
-    // Внутренний accumulator name не может встречаться в пользовательском шаблоне.
+    // The internal accumulator name is reserved in user templates.
     static unity = '__string__';
     append(child) {
         child.parent = this;

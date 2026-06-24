@@ -1,10 +1,7 @@
-import Node from './node';
-import Expression from './expression';
-import Statement from './statement';
-import Text from './text';
+import { Expression, Node, Statement, Text } from '../ast';
 import parse from './parse';
 
-/** Callable compiler с историческими constructor/helper-свойствами на функции. */
+/** Callable compiler with legacy constructor/helper properties attached to the function. */
 export interface INebbia {
   (template: string): string;
   [key: string]: any;
@@ -14,7 +11,7 @@ const nebbia: INebbia = function(template: string): string {
   return parse(template).build();
 };
 
-// Свойства на функции сохраняют public API старой CommonJS-версии пакета.
+// Function properties preserve the legacy CommonJS public API.
 export default Object.assign(nebbia, {
   Node,
   Expression,
