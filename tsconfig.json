@@ -1,13 +1,26 @@
 {
   "compilerOptions": {
     "lib": [
-			"es2022"
-		],
-		"module": "commonjs",
-		"target": "es2022",
-    "resolveJsonModule": true,
+      "ES2023"
+    ],
+    "target": "ES2023",
+    "module": "Node16",
+    "strict": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node16",
+    "sourceMap": true,
     "declaration": true,
-    "outDir": "./dist"
-  }
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

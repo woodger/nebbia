@@ -1,15 +1,13 @@
 # Nebbia
 
-[![License](https://img.shields.io/npm/l/express.svg)](https://github.com/woodger/nebbia/blob/master/LICENSE)
-[![Build Status](https://app.travis-ci.com/woodger/nebbia.svg?branch=master)](https://app.travis-ci.com/woodger/nebbia)
-[![Coverage Status](https://coveralls.io/repos/github/woodger/nebbia/badge.svg?branch=master)](https://coveralls.io/github/woodger/nebbia?branch=master)
-[![Known Vulnerabilities](https://snyk.io/test/github/woodger/nebbia/badge.svg?targetFile=package.json)](https://snyk.io/test/github/woodger/nebbia?targetFile=package.json)
+[![npm version](https://img.shields.io/npm/v/nebbia.svg)](https://www.npmjs.com/package/nebbia)
+[![node](https://img.shields.io/node/v/nebbia.svg)](https://www.npmjs.com/package/nebbia)
+[![types](https://img.shields.io/npm/types/nebbia.svg)](https://www.npmjs.com/package/nebbia)
+[![license](https://img.shields.io/npm/l/nebbia.svg)](LICENSE)
 
-[![npm](https://nodei.co/npm/nebbia.png)](https://www.npmjs.com/package/nebbia)
+`Nebbia` is a JavaScript [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) compiler. It makes templates more expressive.
 
-`Nebbia` is a JavaScript [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) (Template strings) compiler. Make the templates more expressive.
-
-To improve reliability and maintainability the code is migrated to [TypeScript](https://www.typescriptlang.org).
+To improve reliability and maintainability the codebase has been migrated to [TypeScript](https://www.typescriptlang.org).
 
 ### How it works?
 
@@ -17,9 +15,9 @@ To improve reliability and maintainability the code is migrated to [TypeScript](
 
 Template literals are enclosed by the back-tick `` ` `` character instead of double or single quotes. Template literals can contain placeholders. These are indicated by the dollar sign and curly braces `` `${expression}` ``. The expressions in the placeholders and the text between them get passed to a function. The default function just concatenates the parts into a single string.
 
-This is a very useful feature. The expression can only be used to interpolate strings. The following example demonstrates the problem of string interpolation.
+Template literals are useful, but placeholders can only contain expressions. The following example demonstrates the problem of string interpolation.
 
-```ts
+```js
 `${1 + 1}` // '2'
 `${}` // SyntaxError: Unexpected token }
 `${if (true) {}}` // SyntaxError: Unexpected token if
@@ -31,14 +29,18 @@ List of supported statements:
 
 - [if](#if)
 - [if...else](#ifelse)
+- [if...else if](#ifelse-if)
 - [for](#for)
 - [for...in](#forin)
 - [for...of](#forof)
 - [while](#while)
+- [do...while](#dowhile)
+- [break](#break)
+- [continue](#continue)
 
-> NOTE The `break` statement is a prisoner in blocks `for`, `for..in`, `for ...of`, `while` does not support interrupt inside iterations.
+> NOTE The `break` and `continue` statements are supported only inside iteration blocks: `for`, `for...in`, `for...of`, `while`, and `do...while`.
 
-`Nebbia` created by to make template strings more loyal. An empty expression `${}` will not `throw` an exception. Supports *closures* and multiple *nesting* of expressions.
+`Nebbia` was created to make template strings more forgiving. An empty expression `${}` will not `throw` an exception. It supports *closures* and multiple *nesting* of expressions.
 The compiled pattern does not use regular expressions.
 
 ## Getting Started
@@ -50,8 +52,7 @@ To use `Nebbia` in your project, run:
 ```bash
 npm i nebbia
 ```
-Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by following the [ECMAScript® 2018 Language Specification
-](https://www.ecma-international.org/ecma-262/9.0/index.html) standard.
+`Nebbia` is a [Node.js®](https://nodejs.org/) module with bundled TypeScript declarations. It is built for Node.js `>=20.19.0` and targets ECMAScript 2023.
 
 ## API docs
 
@@ -60,10 +61,10 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 [nebbia(template)](#nebbiatemplate)
 - [class Node](#class-node)
   - [static: Node.unity](#static-nodeunity)
-  - [constructor: new Node()](#constructor-new-node)
+  - [constructors](#constructors)
   - [node.append(child)](#nodeappendchild)
   - [node.build()](#nodebuild)
-  - [node.childs](#nodechilds)
+  - [node.children](#nodechildren)
   - [node.name](#nodename)
   - [node.parent](#nodeparent)
   - [node.type](#nodetype)
@@ -71,11 +72,11 @@ Browser-compatible [Node.js®](https://nodejs.org/) module, implemented by follo
 - [class Expression](#class-expression)
 - [class Statement](#class-statement)
 - [class Text](#class-text)
-- [parse(template)](#nebbiaparsetemplate)
+- [nebbia.parse(template)](#nebbiaparsetemplate)
 
 #### nebbia(template)
 
-- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. By default, `'__string__'` is the name of a variable used to concatenate strings. You can change a keyword by assigning a value to the `nebbia.unity` property.
+- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to compile. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker by assigning a value to `nebbia.Node.unity`.
 - returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick `` ` `` (grave accent).
 
 **template.html**
@@ -115,7 +116,7 @@ else {
 }}
 ```
 
-Strings are enclosed by the back-tick `` ` `` character is processed by the parser as is.
+A JavaScript template literal inside a statement is processed by the parser as is.
 
 ```html
 ${if (arg === `;)`) {
@@ -127,11 +128,11 @@ This is useful when you need to escape arguments in a statement. Otherwise, the 
 
 #### Statements by category
 
-The `Nebbia` uses JavaScript with an appropriate syntax to create a compilation of template strings. Several instructions can be in the same expression. The spaces and tabs is not taken into account by the parser.
+`Nebbia` uses JavaScript-like statement syntax to compile template strings. Several instructions can be in the same expression. Spaces and tabs are not taken into account by the parser.
 
 ##### if
 
-```ts
+```js
 import nebbia from 'nebbia';
 
 const template = '${if (arg === true) {<p>${arg}</p>}}';
@@ -142,7 +143,7 @@ invoke(true); // <p>true</p>
 
 ##### if...else
 
-```ts
+```js
 import nebbia from 'nebbia';
 
 const template = '${if (arg === true) {<p>${arg}</p>} else {<p>else</p>}}';
@@ -151,12 +152,20 @@ const invoke = new Function('arg', 'return ' + nebbia(template));
 invoke(false); // <p>else</p>
 ```
 
-> NOTE Multiple `if...else` statements not support be nested to create an `else if` clause.
-> Planned to be implemented in the future.
+##### if...else if
+
+```js
+import nebbia from 'nebbia';
+
+const template = '${if (arg === 1) {<p>one</p>} else if (arg === 2) {<p>two</p>} else {<p>else</p>}}';
+const invoke = new Function('arg', 'return ' + nebbia(template));
+
+invoke(2); // <p>two</p>
+```
 
 ##### for
 
-```ts
+```js
 import nebbia from 'nebbia';
 
 const template = '${for (let i = 0; i < count; i++) {<p>${i}</p>}}';
@@ -167,7 +176,7 @@ invoke(2); // <p>0</p><p>1</p>
 
 ##### for...in
 
-```ts
+```js
 import nebbia from 'nebbia';
 
 const template = '${for (let i in obj) {<p>${i}</p>}}';
@@ -181,7 +190,7 @@ invoke({
 
 ##### for...of
 
-```ts
+```js
 import nebbia from 'nebbia';
 
 const template = '${for (let i of list) {<p>${i}</p>}}';
@@ -192,33 +201,63 @@ invoke([ 0, 1 ]); // <p>0</p><p>1</p>
 
 ##### while
 
-```ts
+```js
 import nebbia from 'nebbia';
 
-const template = '${while (list.pop() > -1) {<p>${i.length}</p>}}';
+const template = '${while (list.length > 0) {<p>${list.pop()}</p>}}';
 const invoke = new Function('list', 'return ' + nebbia(template));
 
-invoke([ 0, 1 ]); // <p>1</p><p>0/p>
+invoke([ 0, 1 ]); // <p>1</p><p>0</p>
 ```
 
-> NOTE The `do...while` statement not implemented.
-> Planned to be implemented in the future.
+##### do...while
+
+```js
+import nebbia from 'nebbia';
+
+const template = '${do {<p>${arg}</p>} while (arg-- > 0)}';
+const invoke = new Function('arg', 'return ' + nebbia(template));
+
+invoke(1); // <p>1</p><p>0</p>
+```
+
+##### break
+
+```js
+import nebbia from 'nebbia';
+
+const template = '${for (let i = 0; i < list.length; i++) {${if (list[i] === stop) {${break}}}<p>${list[i]}</p>}}';
+const invoke = new Function('list', 'stop', 'return ' + nebbia(template));
+
+invoke([ 1, 2, 3 ], 3); // <p>1</p><p>2</p>
+```
+
+##### continue
+
+```js
+import nebbia from 'nebbia';
+
+const template = '${for (let i = 0; i < list.length; i++) {${if (list[i] === skip) {${continue}}}<p>${list[i]}</p>}}';
+const invoke = new Function('list', 'skip', 'return ' + nebbia(template));
+
+invoke([ 1, 2, 3 ], 2); // <p>1</p><p>3</p>
+```
 
 #### class Node
 
-`Node` is an interface from which a number of `Tree` object types inherit. It allows those types to be treated similarly; for example, inheriting the same set of methods, or being tested in the same way.
+`Node` is the base AST class used by the compiler tree. Concrete node classes inherit its tree fields and methods.
 
 ![yuml diagram](http://yuml.me/woodger/diagram/scruffy;dir:LR/class/[Node]->extends[Expression{bg:snow}],[Node]->extends[Text{bg:snow}],[Node]->extends[Statement{bg:snow}])
 
-The following interfaces all inherit from `Node`’s methods and properties: [Expression](#class-expression), [Statement](#class-statement) and [Text](#class-text).
+The following classes inherit from `Node`’s methods and properties: [Expression](#class-expression), [Statement](#class-statement) and [Text](#class-text).
 
 #### static: Node.unity
 
-<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. **Default:** `'__string__'`.
+<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. Public export: `nebbia.Node.unity`. **Default:** `'__string__'`.
 
-#### constructor: new Node()
+#### constructors
 
-Sets default node instance values.
+The base `Node` class is abstract in TypeScript. Use concrete node classes: [Expression](#class-expression), [Statement](#class-statement), and [Text](#class-text). They initialize default node instance values inherited from `Node`.
 
 #### node.append(child)
 
@@ -231,18 +270,18 @@ Adds the specified `node` argument as the last child to the current node.
 
 - returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick `` ` `` (grave accent).
 
-#### node.childs
+#### node.children
 
 - <[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)> Contains all the children of this `node`.
 
 #### node.name
 
 - <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)|[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Contains the name of the `node`.
-The structure of the name will differ with the `node` type. E.g. An [Statement](#class-statement) will contain the name of the corresponding statement, a [Text](#class-text) node will have the `#text` string. **Default:** `null`.
+The structure of the name will differ with the `node` type. E.g. A [Statement](#class-statement) will contain the name of the corresponding statement, a [Text](#class-text) node will have the `#text` string. **Default:** `null`.
 
 #### node.parent
 
-- <[Node](#class-node)|[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Returns a `node` that is the parent of this `node`. If there is no such `node`, like if this node is the top of the tree or if doesn't participate in a tree, this property returns `null`.
+- <[Node](#class-node)|[null](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null)> Returns a `node` that is the parent of this `node`. If there is no such `node`, for example when this node is the top of the tree or does not participate in a tree, this property returns `null`.
 
 #### node.type
 
@@ -258,11 +297,11 @@ Possible values are:
 
 #### node.value
 
-<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns value of the current `node`.
+<[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the value of the current `node`.
 
 #### class Expression
 
-Represents a group of nodes resulting from parsing an expression on [Statement](#class-statement) and [Text](#class-text).
+Represents a group of nodes resulting from parsing an expression into [Statement](#class-statement) and [Text](#class-text) nodes.
 
 ![yuml diagram](http://yuml.me/diagram/scruffy;dir:LR/class/[Expression]-[Text],[Expression]-[Statement])
 
@@ -272,18 +311,18 @@ Represents the textual content.
 
 #### class Statement
 
-Contains the `name` of the statement, the condition is stored in the `value` of the `node`.
+Contains the `name` of the statement. The condition is stored in the `value` of the `node`.
 
-#### parse(template)
+#### nebbia.parse(template)
 
-- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template inside the ad must be in the block `{}`. By default, `'__string__'` is the name of a variable used to concatenate strings. You can change a keyword by assigning a value to the `nebbia.unity` property.
-- returns: <[Expression](#class-expression)> Each branch of the tree ends in a `node`, and each `node` contains objects. Methods provides programmatic access to the tree; with them you can change the template strings structure.
+- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to parse. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker by assigning a value to `nebbia.Node.unity`.
+- returns: <[Expression](#class-expression)> Returns the root expression node. The returned AST gives programmatic access to the template string structure.
 
 An example of parsing the template:
 
 **template.html**
 
-```ts
+```js
 <div>
 ${if (typeof value === 'string') {
   <p>${value}</p>
@@ -293,12 +332,12 @@ ${if (typeof value === 'string') {
 
 **index.js**
 
-```ts
+```js
 import fs from 'fs';
-import { parse } from 'nebbia';
+import nebbia from 'nebbia';
 
 const content = fs.readFileSync('./template.html');
-const ast = parse(content);
+const ast = nebbia.parse(content);
 const template = ast.build();
 ```
 
@@ -308,7 +347,7 @@ const template = ast.build();
 
 *const template:*
 
-```ts
+```js
 `<div>
 ${((__string__)=>{if(typeof value === 'string')__string__+=`
   <p>${value}</p>
@@ -319,8 +358,5 @@ ${((__string__)=>{if(typeof value === 'string')__string__+=`
 
 ## Development
 
-Planed:
+Planned:
 - Measure benchmark.
-- To introduce:
-  - `do...while`, `else...if` statement.
-  - `break`, `continue` statement is a prisoner in blocks `for` and `while` inside iterations.
