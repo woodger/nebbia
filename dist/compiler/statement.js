@@ -20,12 +20,12 @@ class Statement extends node_1.default {
         if (this.parent === null) {
             return value;
         }
-        const index = this.parent.childs.indexOf(this);
+        const index = this.parent.children.indexOf(this);
         if (index === -1) {
             return value;
         }
-        for (let i = index + 1; i < this.parent.childs.length; i++) {
-            const next = this.parent.childs[i];
+        for (let i = index + 1; i < this.parent.children.length; i++) {
+            const next = this.parent.children[i];
             if (next.name === 'else if') {
                 value += 'else if(' + next.value + '){' + this.buildChildren(next) + '}';
             }
@@ -42,7 +42,7 @@ class Statement extends node_1.default {
     buildChildren(node) {
         let value = '';
         let template = '';
-        for (const i of node.childs) {
+        for (const i of node.children) {
             if (i instanceof Statement) {
                 value += this.buildTemplateAppend(template);
                 value += this.buildStatementNode(i);

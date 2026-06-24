@@ -10,5 +10,14 @@ const node_1 = __importDefault(require("./node"));
     (0, node_test_1.test)('exports constructor function', () => {
         strict_1.default.strictEqual(typeof node_1.default, 'function');
     });
+    (0, node_test_1.test)('appends child nodes to children collection', () => {
+        class TestNode extends node_1.default {
+        }
+        const parent = new TestNode();
+        const child = new TestNode();
+        parent.append(child);
+        strict_1.default.deepStrictEqual(parent.children, [child]);
+        strict_1.default.strictEqual(child.parent, parent);
+    });
 });
 //# sourceMappingURL=node.test.js.map

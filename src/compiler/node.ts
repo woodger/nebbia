@@ -1,7 +1,7 @@
 /** Базовый AST-node для compiler tree. */
 export default abstract class Node {
   readonly type: number | null = null;
-  readonly childs: Array<Node> = [];
+  readonly children: Array<Node> = [];
 
   parent: Node | null = null;
   name: string | null = null;
@@ -12,7 +12,7 @@ export default abstract class Node {
 
   append(child: Node): void {
     child.parent = this;
-    this.childs.push(child);
+    this.children.push(child);
   }
 
   build(): string {

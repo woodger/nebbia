@@ -13,7 +13,7 @@ class Expression extends node_1.default {
             return '${' + this.value + '}';
         }
         let value = '';
-        for (const i of this.childs) {
+        for (const i of this.children) {
             value += i.build();
         }
         value = '`' + value + '`';

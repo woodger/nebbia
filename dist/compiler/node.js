@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /** Базовый AST-node для compiler tree. */
 class Node {
     type = null;
-    childs = [];
+    children = [];
     parent = null;
     name = null;
     value = '';
@@ -11,7 +11,7 @@ class Node {
     static unity = '__string__';
     append(child) {
         child.parent = this;
-        this.childs.push(child);
+        this.children.push(child);
     }
     build() {
         return this.value;

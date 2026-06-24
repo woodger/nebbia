@@ -12,7 +12,7 @@ export default class Expression extends Node {
 
     let value = '';
 
-    for (const i of this.childs) {
+    for (const i of this.children) {
       value += i.build();
     }
 
