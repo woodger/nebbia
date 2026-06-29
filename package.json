@@ -1,6 +1,6 @@
 {
   "name": "nebbia",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "JavaScript Template literals (Template strings) compiler",
   "keywords": [
     "template literals",
@@ -15,8 +15,8 @@
     "email": "woodger@ya.ru"
   },
   "license": "MIT",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "node dist/suite.js",
@@ -29,6 +29,7 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.6.0",
     "eslint": "^10.2.1",
+    "fwa": "2.0.0-alpha",
     "globals": "^17.5.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.0"
