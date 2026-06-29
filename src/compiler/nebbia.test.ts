@@ -541,6 +541,17 @@ describe('#nebbia()', () => {
       assert.strictEqual(invoke(`)`), '');
     });
 
+    test('rejects template delimiters inside unsupported JavaScript fragments', () => {
+      assert.throws(
+        () => compileTemplate('${if (/}/.test(arg)) {<i>yes</i>}}', 'arg'),
+        Error
+      );
+      assert.throws(
+        () => compileTemplate('${if (arg /* ) */) {<i>yes</i>}}', 'arg'),
+        Error
+      );
+    });
+
     test('preserves break and continue words as template text', () => {
       const invoke = compileTemplate(
         '${for (let i = 0; i < 1; i++) {break continue}}'
