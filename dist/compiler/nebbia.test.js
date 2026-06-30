@@ -276,6 +276,10 @@ function assertThrowsError(fn, message) {
             strict_1.default.strictEqual(invoke(`")"`), '<i>bracket</i>');
             strict_1.default.strictEqual(invoke(`)`), '');
         });
+        (0, node_test_1.test)('rejects template delimiters inside unsupported JavaScript fragments', () => {
+            strict_1.default.throws(() => compileTemplate('${if (/}/.test(arg)) {<i>yes</i>}}', 'arg'), Error);
+            strict_1.default.throws(() => compileTemplate('${if (arg /* ) */) {<i>yes</i>}}', 'arg'), Error);
+        });
         (0, node_test_1.test)('preserves break and continue words as template text', () => {
             const invoke = compileTemplate('${for (let i = 0; i < 1; i++) {break continue}}');
             strict_1.default.strictEqual(invoke(), 'break continue');
