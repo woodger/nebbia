@@ -5,4 +5,3 @@ docs/
 src/
 tsconfig.json
 **/*.test.*
-**/*.map
