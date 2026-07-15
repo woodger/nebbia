@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+## [3.0.7] - 2026-07-14
+
+### Changed
+
+- Updated the lint script to use the ESLint configuration defaults.
+- Kept CommonJS compatibility checks explicit under the ESLint `no-require-imports` rule.
+
 ## [3.0.6] - 2026-07-03
 
 ### Changed
@@ -17,7 +24,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Removed
 
-- Removed source maps from compiled output.
+- Removed tracked compiled `dist` output from the repository.
+- Removed source map generation from compiled output.
 
 ## [3.0.5] - 2026-07-02
 
