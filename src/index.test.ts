@@ -6,7 +6,28 @@ import nebbia from './index';
 describe('interface module', () => {
   test('is backwards compatible with require', () => {
     // biome-ignore lint/style/noCommonJs: Verifies CommonJS compatibility.
-    assert.strictEqual(require('./index'), nebbia);
+    assert.strictEqual(require('nebbia'), nebbia);
+  });
+
+  test('is compatible with ECMAScript module default imports', async () => {
+    const importPackage = new Function('return import("nebbia")') as () => Promise<{
+      default: typeof nebbia;
+    }>;
+    const imported = await importPackage();
+
+    assert.strictEqual(imported.default, nebbia);
+  });
+
+  test('rejects unsupported deep imports', () => {
+    assert.throws(
+      () => {
+        // biome-ignore lint/style/noCommonJs: Verifies the public CommonJS package boundary.
+        require('nebbia/dist/compiler');
+      },
+      {
+        code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'
+      }
+    );
   });
 
   test('exports callable compiler', () => {
@@ -19,7 +40,7 @@ describe('interface module', () => {
 
   test('exposes public compiler contracts', () => {
     // biome-ignore lint/style/noCommonJs: Verifies CommonJS compatibility.
-    const required = require('./index');
+    const required = require('nebbia');
 
     assert.strictEqual(typeof nebbia.parse, 'function');
     assert.strictEqual(typeof nebbia.Node, 'function');

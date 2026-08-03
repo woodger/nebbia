@@ -1,6 +1,6 @@
 {
   "name": "nebbia",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "JavaScript Template literals (Template strings) compiler",
   "keywords": [
     "template literals",
@@ -15,13 +15,25 @@
     "type": "git",
     "url": "git+https://git@github.com/woodger/nebbia.git"
   },
+  "bugs": {
+    "url": "https://github.com/woodger/nebbia/issues"
+  },
+  "homepage": "https://github.com/woodger/nebbia#readme",
+  "directories": {
+    "doc": "docs"
+  },
   "engines": {
     "node": ">=18.6.0"
   },
+  "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
+    "prepack": "tsc",
     "test": "fwa --prune",
     "lint": "biome lint src"
   },

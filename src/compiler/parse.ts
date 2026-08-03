@@ -49,6 +49,7 @@ function parseExpression(template: string, parent: Node): void {
     const char1 = template[i + 1];
     const char2 = template[i + 2];
     const char3 = template[i + 3];
+    const statementStart = isStatementStart(template, i);
 
     if (isQuote(char)) {
       const quoted = readQuoted(template, i);
@@ -58,10 +59,12 @@ function parseExpression(template: string, parent: Node): void {
     }
 
     const control =
-      (char === 'b' || char === 'c') && buffer.trim() === '' ?
+      statementStart && (char === 'b' || char === 'c') && buffer.trim() === '' ?
         /^(break|continue)\s*;?(?=\s*$)/.exec(template.slice(i)) :
         null;
-    const elseIf = char === 'e' ? /^else\s+if(?=\s*\()/.exec(template.slice(i)) : null;
+    const elseIf = statementStart && char === 'e' ?
+      /^else\s+if(?=\s*\()/.exec(template.slice(i)) :
+      null;
 
     // Statement keywords are recognized only at expression top level.
     if (control !== null) {
@@ -73,6 +76,7 @@ function parseExpression(template: string, parent: Node): void {
       i += control[0].length - 1;
     }
     else if (
+      statementStart &&
       char === 'i' && char1 === 'f' &&
       re.bracket.test(template.slice(i + 2))
     ) {
@@ -92,6 +96,7 @@ function parseExpression(template: string, parent: Node): void {
       i = statement.end;
     }
     else if (
+      statementStart &&
       char === 'e' && char1 === 'l' && char2 === 's' && char3 === 'e' &&
       re.brace.test(template.slice(i + 4))
     ) {
@@ -102,6 +107,7 @@ function parseExpression(template: string, parent: Node): void {
       i = statement.end;
     }
     else if (
+      statementStart &&
       char === 'f' && char1 === 'o' && char2 === 'r' &&
       re.bracket.test(template.slice(i + 3))
     ) {
@@ -114,6 +120,7 @@ function parseExpression(template: string, parent: Node): void {
       i = statement.end;
     }
     else if (
+      statementStart &&
       char === 'w' && char1 === 'h' && char2 === 'i' && char3 === 'l' &&
       template[i + 4] === 'e' && re.bracket.test(template.slice(i + 5))
     ) {
@@ -126,6 +133,7 @@ function parseExpression(template: string, parent: Node): void {
       i = statement.end;
     }
     else if (
+      statementStart &&
       char === 'd' && char1 === 'o' &&
       re.brace.test(template.slice(i + 2))
     ) {
@@ -143,6 +151,17 @@ function parseExpression(template: string, parent: Node): void {
   }
 
   appendExpression(buffer, parent);
+}
+
+/** Checks whether a top-level statement keyword can begin at the given index. */
+function isStatementStart(template: string, start: number): boolean {
+  if (start === 0) {
+    return true;
+  }
+
+  const previous = template[start - 1];
+
+  return previous === '}' || /^\s$/.test(previous);
 }
 
 /** Splits raw template text around compiler expressions and appends the resulting AST nodes. */

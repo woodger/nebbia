@@ -198,6 +198,28 @@ describe('#nebbia()', () => {
       assert.strictEqual(invoke(1), '<i>1</i>');
     });
 
+    test('preserves statement keywords inside JavaScript expressions', () => {
+      const invoke = compileTemplate(
+        '${myif(true)}:${myfor([ 1, 2 ])}:${meanwhile()}:${obj.if(false)}',
+        'myif',
+        'myfor',
+        'meanwhile',
+        'obj'
+      );
+
+      assert.strictEqual(
+        invoke(
+          (value: boolean) => `if:${value}`,
+          (values: Array<number>) => values.length,
+          () => 'while',
+          {
+            if: (value: boolean) => `member:${value}`
+          }
+        ),
+        'if:true:2:while:member:false'
+      );
+    });
+
     test('handles template literal expressions', () => {
       const invoke = compileTemplate(
         '<i>${`value:${arg}`}</i>',
