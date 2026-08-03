@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+## [3.0.7] - 2026-08-03
+
 ### Changed
 
 - Replaced ESLint with Biome 2.5.6 using explicit error-level lint rules while
@@ -20,12 +22,9 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Removed the ESLint configuration and its supporting development dependencies.
 
-## [3.0.7] - 2026-07-14
+### Fixed
 
-### Changed
-
-- Updated the lint script to use the ESLint configuration defaults.
-- Kept CommonJS compatibility checks explicit under the ESLint `no-require-imports` rule.
+- Aligned the documented Node.js runtime requirement with the package metadata.
 
 ## [3.0.6] - 2026-07-03
 
