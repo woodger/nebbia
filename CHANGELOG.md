@@ -7,12 +7,24 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
-## [3.0.7] - 2026-07-14
+## [3.0.7] - 2026-08-03
 
 ### Changed
 
-- Updated the lint script to use the ESLint configuration defaults.
-- Kept CommonJS compatibility checks explicit under the ESLint `no-require-imports` rule.
+- Replaced ESLint with Biome 2.5.6 using explicit error-level lint rules while
+  preserving the documented CommonJS compatibility boundary.
+- Updated the development compiler from TypeScript 6 to TypeScript 7.0.2 and
+  the compiled test runner to FWA 2.1.
+- Added a tracked Yarn lockfile for reproducible development and CI installs
+  while keeping it excluded from the published package.
+
+### Removed
+
+- Removed the ESLint configuration and its supporting development dependencies.
+
+### Fixed
+
+- Aligned the documented Node.js runtime requirement with the package metadata.
 
 ## [3.0.6] - 2026-07-03
 

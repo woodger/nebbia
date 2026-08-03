@@ -1,6 +1,6 @@
 node_modules/
 yarn.lock
-eslint.config.mjs
+biome.json
 docs/
 src/
 tsconfig.json

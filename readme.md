@@ -52,7 +52,7 @@ To use `Nebbia` in your project, run:
 ```bash
 npm i nebbia
 ```
-`Nebbia` is a [Node.js®](https://nodejs.org/) module with bundled TypeScript declarations. It is built for Node.js `>=20.19.0` and targets ECMAScript 2023.
+`Nebbia` is a [Node.js®](https://nodejs.org/) module with bundled TypeScript declarations. It is built for Node.js `>=18.6.0` and targets ECMAScript 2023.
 
 ## API docs
 
