@@ -23,15 +23,12 @@
   "scripts": {
     "build": "tsc",
     "test": "fwa --prune",
-    "lint": "eslint"
+    "lint": "biome lint src"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
+    "@biomejs/biome": "2.5.6",
     "@types/node": "^25.6.0",
-    "eslint": "^9.39.4",
-    "fwa": "^2.0.6",
-    "globals": "^17.5.0",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.0"
+    "fwa": "^2.1.0",
+    "typescript": "7.0.2"
   }
 }

@@ -5,7 +5,7 @@ import nebbia from './index';
 
 describe('interface module', () => {
   test('is backwards compatible with require', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Verifies CommonJS compatibility.
+    // biome-ignore lint/style/noCommonJs: Verifies CommonJS compatibility.
     assert.strictEqual(require('./index'), nebbia);
   });
 
@@ -18,7 +18,7 @@ describe('interface module', () => {
   });
 
   test('exposes public compiler contracts', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Verifies CommonJS compatibility.
+    // biome-ignore lint/style/noCommonJs: Verifies CommonJS compatibility.
     const required = require('./index');
 
     assert.strictEqual(typeof nebbia.parse, 'function');
