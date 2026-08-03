@@ -7,6 +7,31 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+## [3.0.8] - 2026-08-03
+
+### Added
+
+- Added npm metadata for the project homepage, issue tracker, and documentation
+  directory.
+- Added automatic TypeScript compilation before npm packages are created.
+- Added package-boundary coverage for CommonJS and ECMAScript module consumers.
+
+### Changed
+
+- Declared the CommonJS package format explicitly and restricted imports to the
+  documented root entry point.
+
+### Fixed
+
+- Prevented statement keywords inside JavaScript identifiers and member names
+  from being parsed as Nebbia statements.
+- Corrected the README file-loading example to pass UTF-8 text to the parser.
+
+### Security
+
+- Documented that Nebbia templates execute JavaScript and must come from trusted
+  sources.
+
 ## [3.0.7] - 2026-08-03
 
 ### Changed

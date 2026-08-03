@@ -54,6 +54,10 @@ npm i nebbia
 ```
 `Nebbia` is a [Node.js®](https://nodejs.org/) module with bundled TypeScript declarations. It is built for Node.js `>=18.6.0` and targets ECMAScript 2023.
 
+### Security
+
+Nebbia compiles template expressions and statements into JavaScript source for execution. Only compile and execute trusted templates. Nebbia is not a sandbox and does not sanitize JavaScript embedded in templates.
+
 ## API docs
 
 ### Table of Contents
@@ -336,7 +340,7 @@ ${if (typeof value === 'string') {
 import fs from 'fs';
 import nebbia from 'nebbia';
 
-const content = fs.readFileSync('./template.html');
+const content = fs.readFileSync('./template.html', 'utf8');
 const ast = nebbia.parse(content);
 const template = ast.build();
 ```
