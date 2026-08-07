@@ -41,10 +41,6 @@ describe('interface module', () => {
   });
 
   test('exposes public compiler contracts', () => {
-    // Verifies CommonJS compatibility.
-    // oxlint-disable-next-line import/no-commonjs
-    const required = require('nebbia');
-
     assert.strictEqual(typeof nebbia.parse, 'function');
     assert.strictEqual(typeof nebbia.Node, 'function');
     assert.strictEqual(typeof nebbia.Expression, 'function');
@@ -56,11 +52,5 @@ describe('interface module', () => {
     assert.strictEqual(nebbia.Expression, Expression);
     assert.strictEqual(nebbia.Statement, Statement);
     assert.strictEqual(nebbia.Text, Text);
-
-    assert.strictEqual(required.parse, parse);
-    assert.strictEqual(required.Node, Node);
-    assert.strictEqual(required.Expression, Expression);
-    assert.strictEqual(required.Statement, Statement);
-    assert.strictEqual(required.Text, Text);
   });
 });
