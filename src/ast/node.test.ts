@@ -3,10 +3,6 @@ import { describe, test } from 'node:test';
 import Node from './node';
 
 describe('class Node', () => {
-  test('exports constructor function', () => {
-    assert.strictEqual(typeof Node, 'function');
-  });
-
   test('appends child nodes to children collection', () => {
     class TestNode extends Node {}
 

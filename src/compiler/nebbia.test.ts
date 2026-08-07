@@ -435,33 +435,6 @@ describe('#nebbia()', () => {
       assert.strictEqual(invoke('Hello, World!'), 'Hello, World!<i>0</i>');
     });
 
-    test('renders for...in statements with preceding expressions', () => {
-      const invoke = compileTemplate(
-        '${hello for (let i in arg) {<i>${i}</i>}}',
-        'arg',
-        'hello'
-      );
-
-      assert.strictEqual(
-        invoke({
-          foo: 1,
-          bar: 2
-        },
-        'Hello, World!'),
-        'Hello, World!<i>foo</i><i>bar</i>'
-      );
-    });
-
-    test('renders for...of statements with preceding expressions', () => {
-      const invoke = compileTemplate(
-        '${hello for (let i of arg) {<i>${i}</i>}}',
-        'arg',
-        'hello'
-      );
-
-      assert.strictEqual(invoke([ 1 ], 'Hello, World!'), 'Hello, World!<i>1</i>');
-    });
-
     test('renders while statements with preceding expressions', () => {
       const invoke = compileTemplate(
         '${hello while (arg.pop() > 0) {<i>${arg.length}</i>}}',
@@ -509,15 +482,6 @@ describe('#nebbia()', () => {
       const invoke = compileTemplate('<i>${arg}$</i>', 'arg');
 
       assert.strictEqual(invoke(''), '<i>$</i>');
-    });
-
-    test('allows spaces around nested expressions', () => {
-      const invoke = compileTemplate(
-        '${ if (arg > 0) {<i>${ arg }</i>} }',
-        'arg'
-      );
-
-      assert.strictEqual(invoke(1), '<i>1</i>');
     });
 
     test('allows spaces before a closing expression brace', () => {

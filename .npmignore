@@ -1,6 +1,6 @@
 node_modules/
-yarn.lock
-biome.json
+package-lock.json
+.oxlintrc.json
 docs/
 src/
 tsconfig.json

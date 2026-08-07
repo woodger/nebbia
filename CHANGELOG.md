@@ -7,6 +7,21 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+## [3.0.9] - 2026-08-07
+
+### Changed
+
+- Replaced Biome with Oxlint 1.77.0 using an explicit error-level lint ruleset
+  while preserving the documented CommonJS compatibility boundary.
+- Standardized development installs on npm, replaced the Yarn lockfile with
+  `package-lock.json`, and declared npm as the only supported package manager.
+- Documented the development Node.js requirement and Nebbia's permissive
+  handling of malformed template syntax.
+
+### Removed
+
+- Removed stale npm metadata for a documentation directory that is not present.
+
 ## [3.0.8] - 2026-08-03
 
 ### Added

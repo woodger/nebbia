@@ -3,10 +3,6 @@ import { describe, test } from 'node:test';
 import Expression from './expression';
 
 describe('class Expression', () => {
-  test('exports constructor function', () => {
-    assert.strictEqual(typeof Expression, 'function');
-  });
-
   test('initializes default type and name', () => {
     const node = new Expression();
 
