@@ -5,7 +5,8 @@ import nebbia from './index';
 
 describe('interface module', () => {
   test('is backwards compatible with require', () => {
-    // biome-ignore lint/style/noCommonJs: Verifies CommonJS compatibility.
+    // Verifies CommonJS compatibility.
+    // oxlint-disable-next-line import/no-commonjs
     assert.strictEqual(require('nebbia'), nebbia);
   });
 
@@ -21,7 +22,8 @@ describe('interface module', () => {
   test('rejects unsupported deep imports', () => {
     assert.throws(
       () => {
-        // biome-ignore lint/style/noCommonJs: Verifies the public CommonJS package boundary.
+        // Verifies the public CommonJS package boundary.
+        // oxlint-disable-next-line import/no-commonjs
         require('nebbia/dist/compiler');
       },
       {
@@ -39,7 +41,8 @@ describe('interface module', () => {
   });
 
   test('exposes public compiler contracts', () => {
-    // biome-ignore lint/style/noCommonJs: Verifies CommonJS compatibility.
+    // Verifies CommonJS compatibility.
+    // oxlint-disable-next-line import/no-commonjs
     const required = require('nebbia');
 
     assert.strictEqual(typeof nebbia.parse, 'function');

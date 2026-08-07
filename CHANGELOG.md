@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced Biome with Oxlint 1.77.0 using an explicit error-level lint ruleset
+  while preserving the documented CommonJS compatibility boundary.
+
 ## [3.0.8] - 2026-08-03
 
 ### Added
