@@ -56,6 +56,8 @@ npm i nebbia
 
 ### Development
 
+Development tooling requires Node.js `^20.19.0` or `>=22.12.0`.
+
 This repository supports npm as its only package manager. Yarn, pnpm, Bun, and other alternative package managers must not be used.
 
 Install the exact development dependency tree from `package-lock.json` with:
@@ -92,6 +94,8 @@ Nebbia compiles template expressions and statements into JavaScript source for e
 
 - `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to compile. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker by assigning a value to `nebbia.Node.unity`.
 - returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick `` ` `` (grave accent).
+
+Malformed syntax is handled permissively: an unclosed `${...}` fragment ends at the end of the template, while standalone `else` and `else if` blocks are ignored.
 
 **template.html**
 
