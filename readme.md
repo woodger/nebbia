@@ -54,6 +54,16 @@ npm i nebbia
 ```
 `Nebbia` is a [Node.js®](https://nodejs.org/) module with bundled TypeScript declarations. It is built for Node.js `>=18.6.0` and targets ECMAScript 2023.
 
+### Development
+
+This repository supports npm as its only package manager. Yarn, pnpm, Bun, and other alternative package managers must not be used.
+
+Install the exact development dependency tree from `package-lock.json` with:
+
+```bash
+npm ci
+```
+
 ### Security
 
 Nebbia compiles template expressions and statements into JavaScript source for execution. Only compile and execute trusted templates. Nebbia is not a sandbox and does not sanitize JavaScript embedded in templates.

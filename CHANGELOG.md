@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 - Replaced Biome with Oxlint 1.77.0 using an explicit error-level lint ruleset
   while preserving the documented CommonJS compatibility boundary.
+- Standardized development installs on npm, replaced the Yarn lockfile with
+  `package-lock.json`, and declared npm as the only supported package manager.
 
 ## [3.0.8] - 2026-08-03
 
