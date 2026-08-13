@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Changed
 
 - Updated the Oxlint development dependency to 1.78.0 and FWA to 2.1.4.
+- Added `oxlint-tsgolint` 7.0.2001 and enabled an audited set of 21
+  type-aware lint rules.
 
 ## [3.0.9] - 2026-08-07
 

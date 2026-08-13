@@ -6,11 +6,13 @@ import nebbia from './index';
 describe('interface module', () => {
   test('is backwards compatible with require', () => {
     // Verifies CommonJS compatibility.
-    // oxlint-disable-next-line import/no-commonjs
+    // oxlint-disable-next-line import/no-commonjs, typescript/no-require-imports
     assert.strictEqual(require('nebbia'), nebbia);
   });
 
   test('is compatible with ECMAScript module default imports', async () => {
+    // Prevents TypeScript from compiling the package import to CommonJS require().
+    // oxlint-disable-next-line typescript/no-implied-eval
     const importPackage = new Function('return import("nebbia")') as () => Promise<{
       default: typeof nebbia;
     }>;
@@ -23,7 +25,7 @@ describe('interface module', () => {
     assert.throws(
       () => {
         // Verifies the public CommonJS package boundary.
-        // oxlint-disable-next-line import/no-commonjs
+        // oxlint-disable-next-line import/no-commonjs, typescript/no-require-imports
         require('nebbia/dist/compiler');
       },
       {
