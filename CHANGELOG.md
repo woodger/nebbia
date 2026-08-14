@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+## [3.0.10] - 2026-08-14
+
 ### Changed
 
 - Updated the Oxlint development dependency to 1.78.0 and FWA to 2.1.4.
