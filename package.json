@@ -1,6 +1,6 @@
 {
   "name": "nebbia",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "description": "JavaScript Template literals (Template strings) compiler",
   "keywords": [
     "template literals",
@@ -24,9 +24,12 @@
   },
   "type": "commonjs",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "types/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "build": "tsc",
@@ -36,8 +39,9 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
-    "fwa": "^2.1.0",
-    "oxlint": "1.77.0",
+    "fwa": "^2.1.4",
+    "oxlint": "1.78.0",
+    "oxlint-tsgolint": "7.0.2001",
     "typescript": "7.0.2"
   }
 }

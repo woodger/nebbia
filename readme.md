@@ -92,7 +92,7 @@ Nebbia compiles template expressions and statements into JavaScript source for e
 
 #### nebbia(template)
 
-- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to compile. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker by assigning a value to `nebbia.Node.unity`.
+- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to compile. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker to a valid, non-reserved JavaScript identifier by assigning a value to `nebbia.Node.unity`.
 - returns: <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Represents the `compiled` template strings of a node and its descendants. [Template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) are **enclosed** by the back-tick `` ` `` (grave accent).
 
 Malformed syntax is handled permissively: an unclosed `${...}` fragment ends at the end of the template, while standalone `else` and `else if` blocks are ignored.
@@ -273,6 +273,8 @@ The following classes inherit from `Node`’s methods and properties: [Expressio
 
 <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> Returns the string concatenation keyword. Public export: `nebbia.Node.unity`. **Default:** `'__string__'`.
 
+The value must be a valid, non-reserved JavaScript identifier and must not occur inside Nebbia expressions because the compiler reserves it for its internal accumulator.
+
 #### constructors
 
 The base `Node` class is abstract in TypeScript. Use concrete node classes: [Expression](#class-expression), [Statement](#class-statement), and [Text](#class-text). They initialize default node instance values inherited from `Node`.
@@ -333,7 +335,7 @@ Contains the `name` of the statement. The condition is stored in the `value` of 
 
 #### nebbia.parse(template)
 
-- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to parse. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker by assigning a value to `nebbia.Node.unity`.
+- `template` <[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)> The template source to parse. By default, `'__string__'` is the name of the internal variable used to concatenate strings. You can change this marker to a valid, non-reserved JavaScript identifier by assigning a value to `nebbia.Node.unity`.
 - returns: <[Expression](#class-expression)> Returns the root expression node. The returned AST gives programmatic access to the template string structure.
 
 An example of parsing the template:
@@ -367,9 +369,9 @@ const template = ast.build();
 
 ```js
 `<div>
-${((__string__)=>{if(typeof value === 'string')__string__+=`
+${((__string__)=>{if(typeof value === 'string'){__string__+=`
   <p>${value}</p>
-`;return __string__})(``)}
+`;};return __string__})(``)}
 </div>
 `
 ```
