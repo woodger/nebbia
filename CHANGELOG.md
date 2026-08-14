@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 - Added `oxlint-tsgolint` 7.0.2001 and enabled an audited set of 21
   type-aware lint rules.
 
+### Fixed
+
+- Added matching TypeScript declarations for the callable CommonJS export.
+- Clarified `Node.unity` constraints and synchronized the generated-output
+  example with the compiler.
+
 ## [3.0.9] - 2026-08-07
 
 ### Changed

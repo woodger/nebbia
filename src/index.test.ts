@@ -7,7 +7,10 @@ describe('interface module', () => {
   test('is backwards compatible with require', () => {
     // Verifies CommonJS compatibility.
     // oxlint-disable-next-line import/no-commonjs, typescript/no-require-imports
-    assert.strictEqual(require('nebbia'), nebbia);
+    const requiredNebbia = require('nebbia') as typeof nebbia;
+
+    assert.strictEqual(requiredNebbia, nebbia);
+    assert.strictEqual(requiredNebbia('template'), '`template`');
   });
 
   test('is compatible with ECMAScript module default imports', async () => {
